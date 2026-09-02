@@ -1527,82 +1527,346 @@ const visibleHeight =
       });
 
 
-    this.finalArrow =
-      new THREE.Points(
-        geometry,
-        material
+this.finalArrow =
+  new THREE.Points(
+    geometry,
+    material
+  );
+
+
+this.finalArrowGeometryCopy =
+  new THREE.BufferGeometry();
+
+
+this.finalArrowGeometryCopy.copy(
+  geometry
+);
+
+
+this.scene.add(
+  this.finalArrow
+);
+
+  }
+
+
+
+ updateFinalArrow() {
+
+  if (
+    !this.finalArrow ||
+    this.finalArrowRevealStart === null
+  ) {
+
+    return;
+
+  }
+
+
+  const elapsed =
+    performance.now() -
+    this.finalArrowRevealStart;
+
+
+  if (
+    elapsed <
+    this.finalArrowDelay
+  ) {
+
+    this.finalArrow.material
+      .uniforms.opacity.value =
+      0;
+
+    return;
+
+  }
+
+
+  const fadeProgress =
+    THREE.MathUtils.clamp(
+
+      (
+        elapsed -
+        this.finalArrowDelay
+      ) /
+      this.finalArrowFadeDuration,
+
+      0,
+
+      1
+
+    );
+
+
+  const smoothFade =
+    fadeProgress *
+    fadeProgress *
+    (
+      3 -
+      2 * fadeProgress
+    );
+
+
+  this.finalArrow.material
+    .uniforms.opacity.value =
+    smoothFade;
+
+
+  /*
+   * Match the word particle interaction.
+   */
+
+  this.raycaster.setFromCamera(
+    this.mouse,
+    this.camera
+  );
+
+
+  const intersects =
+    this.raycaster.intersectObject(
+      this.planeArea
+    );
+
+
+  const pos =
+    this.finalArrow.geometry
+      .attributes.position;
+
+
+  const copy =
+    this.finalArrowGeometryCopy
+      .attributes.position;
+
+
+  const size =
+    this.finalArrow.geometry
+      .attributes.size;
+
+
+  const hasMouseIntersection =
+    intersects.length > 0;
+
+
+  const mx =
+    hasMouseIntersection
+    ? intersects[0].point.x
+    : 100000;
+
+
+  const my =
+    hasMouseIntersection
+    ? intersects[0].point.y
+    : 100000;
+
+
+  for (
+    let i = 0;
+    i < pos.count;
+    i++
+  ) {
+
+    const initX =
+      copy.getX(i);
+
+
+    const initY =
+      copy.getY(i);
+
+
+    const initZ =
+      copy.getZ(i);
+
+
+    let px =
+      pos.getX(i);
+
+
+    let py =
+      pos.getY(i);
+
+
+    let pz =
+      pos.getZ(i);
+
+
+    let dx =
+      mx - px;
+
+
+    let dy =
+      my - py;
+
+
+    const mouseDistance =
+      this.distance(
+        mx,
+        my,
+        px,
+        py
       );
 
 
-    this.scene.add(
-      this.finalArrow
+    let d =
+      dx * dx +
+      dy * dy;
+
+
+    d =
+      Math.max(
+        d,
+        0.001
+      );
+
+
+    const f =
+      -
+      this.data.area /
+      d;
+
+
+    if (this.buttom) {
+
+      const t =
+        Math.atan2(
+          dy,
+          dx
+        );
+
+
+      px -=
+        f *
+        Math.cos(t);
+
+
+      py -=
+        f *
+        Math.sin(t);
+
+    }
+
+    else if (
+      mouseDistance <
+      this.data.area
+    ) {
+
+      const t =
+        Math.atan2(
+          dy,
+          dx
+        );
+
+
+      /*
+       * First arrow layer behaves like
+       * the rear word layer.
+       */
+
+      if (
+        i <
+        pos.count / 2
+      ) {
+
+        px -=
+          .03 *
+          Math.cos(t);
+
+
+        py -=
+          .03 *
+          Math.sin(t);
+
+
+        size.array[i] =
+          this.data.particleSize /
+          1.2;
+
+      }
+
+      /*
+       * Second arrow layer behaves like
+       * the front word layer.
+       */
+
+      else {
+
+        px +=
+          f *
+          Math.cos(t);
+
+
+        py +=
+          f *
+          Math.sin(t);
+
+
+        size.array[i] =
+          this.data.particleSize *
+          1.3;
+
+      }
+
+    }
+
+    else {
+
+      /*
+       * Restore normal arrow size
+       * when the mouse leaves.
+       */
+
+      size.array[i] =
+        this.data.particleSize *
+        0.92;
+
+    }
+
+
+    /*
+     * Return arrow particles home.
+     */
+
+    px +=
+      (
+        initX -
+        px
+      ) *
+      this.data.ease;
+
+
+    py +=
+      (
+        initY -
+        py
+      ) *
+      this.data.ease;
+
+
+    pz +=
+      (
+        initZ -
+        pz
+      ) *
+      this.data.ease;
+
+
+    pos.setXYZ(
+      i,
+      px,
+      py,
+      pz
     );
 
   }
 
 
-
-  updateFinalArrow() {
-
-    if (
-      !this.finalArrow ||
-      this.finalArrowRevealStart === null
-    ) {
-
-      return;
-
-    }
+  pos.needsUpdate =
+    true;
 
 
-    const elapsed =
-      performance.now() -
-      this.finalArrowRevealStart;
+  size.needsUpdate =
+    true;
 
-
-    if (
-      elapsed <
-      this.finalArrowDelay
-    ) {
-
-      this.finalArrow.material
-        .uniforms.opacity.value =
-        0;
-
-      return;
-
-    }
-
-
-    const fadeProgress =
-      THREE.MathUtils.clamp(
-
-        (
-          elapsed -
-          this.finalArrowDelay
-        ) /
-        this.finalArrowFadeDuration,
-
-        0,
-
-        1
-
-      );
-
-
-    const smoothFade =
-      fadeProgress *
-      fadeProgress *
-      (
-        3 -
-        2 * fadeProgress
-      );
-
-
-    this.finalArrow.material
-      .uniforms.opacity.value =
-      smoothFade;
-
-  }
+}
 
 
   onMouseDown(event) {
