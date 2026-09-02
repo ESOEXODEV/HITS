@@ -1161,11 +1161,15 @@ class CreateParticles {
     }
 
   }
-const visibleWidth =
-  this.visibleWidthAtZDepth(
-    0,
-    this.camera
-  );
+
+
+  createFinalArrow() {
+
+    const visibleWidth =
+      this.visibleWidthAtZDepth(
+        0,
+        this.camera
+      );
 
 
 const visibleHeight =
