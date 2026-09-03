@@ -1774,13 +1774,28 @@ this.scene.add(
       .attributes.position;
 
 
-  const size =
-    this.finalArrow.geometry
-      .attributes.size;
+const size =
+  this.finalArrow.geometry
+    .attributes.size;
 
 
-  const hasMouseIntersection =
-    intersects.length > 0;
+const colors =
+  this.finalArrow.geometry
+    .attributes.customColor;
+
+
+const arrowColor =
+  new THREE.Color(
+    this.data.frontColor
+  );
+
+
+const time =
+  performance.now();
+
+
+const hasMouseIntersection =
+  intersects.length > 0;
 
 
   const mx =
@@ -1801,12 +1816,60 @@ this.scene.add(
     i++
   ) {
 
-    const initX =
-      copy.getX(i);
+const initX =
+  copy.getX(i);
 
 
-    const initY =
-      copy.getY(i);
+const layerIndex =
+  i % (pos.count / 2);
+
+
+const randomValue =
+  Math.sin(
+    layerIndex * 12.9898
+  ) *
+  43758.5453;
+
+
+const normalizedRandom =
+  randomValue -
+  Math.floor(
+    randomValue
+  );
+
+
+const baseBrightness =
+  0.52 +
+  normalizedRandom * 0.14;
+
+
+const flicker =
+  0.90 +
+  Math.sin(
+    time * 0.010 +
+    layerIndex * 1.73
+  ) * 0.06 +
+  Math.sin(
+    time * 0.023 +
+    layerIndex * 4.17
+  ) * 0.04;
+
+
+const brightness =
+  baseBrightness *
+  flicker;
+
+
+colors.setXYZ(
+  i,
+  arrowColor.r * brightness,
+  arrowColor.g * brightness,
+  arrowColor.b * brightness
+);
+
+
+const initY =
+  copy.getY(i);
 
 
     const initZ =
@@ -1995,12 +2058,16 @@ this.scene.add(
   }
 
 
-  pos.needsUpdate =
-    true;
+pos.needsUpdate =
+  true;
 
 
-  size.needsUpdate =
-    true;
+colors.needsUpdate =
+  true;
+
+
+size.needsUpdate =
+  true;
 
 }
 
