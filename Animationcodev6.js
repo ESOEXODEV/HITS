@@ -1165,11 +1165,11 @@ class CreateParticles {
 
   createFinalArrow() {
 
-    const visibleWidth =
-      this.visibleWidthAtZDepth(
-        0,
-        this.camera
-      );
+  const visibleWidth =
+  this.visibleWidthAtZDepth(
+    0,
+    this.camera
+  );
 
 
 const visibleHeight =
@@ -1179,28 +1179,112 @@ const visibleHeight =
   );
 
 
-    /*
-     * Arrow size and placement.
-     *
-     * Keep it small and tucked toward the
-     * upper-right so it visually points
-     * toward the Webflow menu.
-     */
+/*
+ * Arrow size.
+ */
 
-    const arrowSize =
-      Math.min(
-        visibleWidth,
-        visibleHeight
-      ) * 0.115;
+const arrowSize =
+  Math.min(
+    visibleWidth,
+    visibleHeight
+  ) * 0.115;
 
 
-    const centerX =
-      visibleWidth * 0.34;
+/*
+ * Find the actual Webflow menu bubble.
+ */
+
+const menuButton =
+  document.querySelector(
+    '.menu-bubble'
+  );
 
 
-    const centerY =
-      visibleHeight * 0.32;
+let centerX =
+  visibleWidth * 0.34;
 
+
+let centerY =
+  visibleHeight * 0.32;
+
+
+/*
+ * If the menu exists, position the arrow
+ * relative to its actual screen position.
+ */
+
+if (menuButton) {
+
+  const rect =
+    menuButton.getBoundingClientRect();
+
+
+  const menuScreenX =
+    rect.left +
+    rect.width / 2;
+
+
+  const menuScreenY =
+    rect.top +
+    rect.height / 2;
+
+
+  /*
+   * Convert browser pixels into normalized
+   * device coordinates.
+   */
+
+  const ndcX =
+    (
+      menuScreenX /
+      window.innerWidth
+    ) * 2 - 1;
+
+
+  const ndcY =
+    -(
+      (
+        menuScreenY /
+        window.innerHeight
+      ) * 2 - 1
+    );
+
+
+  /*
+   * Convert normalized coordinates into
+   * the Three.js particle plane.
+   */
+
+  const menuWorldX =
+    ndcX *
+    visibleWidth /
+    2;
+
+
+  const menuWorldY =
+    ndcY *
+    visibleHeight /
+    2;
+
+
+  /*
+   * Position the CENTER of the arrow
+   * down-left from the menu.
+   *
+   * Because the arrow itself points ↗,
+   * its tip will lead toward the button.
+   */
+
+  centerX =
+    menuWorldX -
+    arrowSize * 0.80;
+
+
+  centerY =
+    menuWorldY -
+    arrowSize * 0.80;
+
+}
 
     const svgMin =
       4.343;
