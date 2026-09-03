@@ -1234,20 +1234,31 @@ if (menuButton) {
    * device coordinates.
    */
 
-  const ndcX =
+const canvasRect =
+  this.renderer.domElement
+    .getBoundingClientRect();
+
+
+const ndcX =
+  (
     (
-      menuScreenX /
-      window.innerWidth
-    ) * 2 - 1;
+      menuScreenX -
+      canvasRect.left
+    ) /
+    canvasRect.width
+  ) * 2 - 1;
 
 
-  const ndcY =
-    -(
+const ndcY =
+  -(
+    (
       (
-        menuScreenY /
-        window.innerHeight
-      ) * 2 - 1
-    );
+        menuScreenY -
+        canvasRect.top
+      ) /
+      canvasRect.height
+    ) * 2 - 1
+  );
 
 
   /*
@@ -1635,7 +1646,52 @@ this.scene.add(
 
 
 
- updateFinalArrow() {
+  }
+
+
+  rebuildFinalArrow() {
+
+    if (!this.finalArrow) {
+      return;
+    }
+
+
+    const wasRevealed =
+      this.finalArrowRevealStart !== null;
+
+
+    this.scene.remove(
+      this.finalArrow
+    );
+
+
+    this.finalArrow.geometry.dispose();
+
+    this.finalArrow.material.dispose();
+
+
+    this.finalArrow = null;
+
+    this.finalArrowGeometryCopy = null;
+
+
+    this.createFinalArrow();
+
+
+    if (wasRevealed) {
+
+      this.finalArrowRevealStart =
+        performance.now() -
+        this.finalArrowDelay -
+        this.finalArrowFadeDuration;
+
+    }
+
+  }
+
+
+
+  updateFinalArrow() {
 
   if (
     !this.finalArrow ||
