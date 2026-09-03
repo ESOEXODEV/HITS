@@ -1645,10 +1645,6 @@ this.scene.add(
   }
 
 
-
-  }
-
-
   rebuildFinalArrow() {
 
     if (!this.finalArrow) {
