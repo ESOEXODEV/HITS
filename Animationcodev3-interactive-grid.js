@@ -87,12 +87,42 @@ void main() {
     );
 
 
+  float distanceFromCenter =
+    distance(
+      gl_PointCoord,
+      vec2(
+        0.5,
+        0.5
+      )
+    );
+
+
+  /*
+   * Soft halo surrounding each drone.
+   */
+
+  float halo =
+    smoothstep(
+      0.50,
+      0.15,
+      distanceFromCenter
+    ) *
+    0.20;
+
+
+  float finalAlpha =
+    max(
+      textureColor.a,
+      halo
+    ) *
+    vAlpha;
+
+
   gl_FragColor =
     vec4(
       vColor,
-      vAlpha
-    ) *
-    textureColor;
+      finalAlpha
+    );
 
 }
 
@@ -1786,7 +1816,7 @@ class CreateParticles {
 
         size.array[i] =
           this.data.particleSize *
-          1.30;
+          1.15;
 
       }
 
