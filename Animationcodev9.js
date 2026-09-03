@@ -1288,12 +1288,12 @@ const ndcY =
 
   centerX =
     menuWorldX -
-    arrowSize * 0.80;
+    arrowSize * 1.55;
 
 
   centerY =
     menuWorldY -
-    arrowSize * 0.80;
+    arrowSize * 1.45;
 
 }
 
