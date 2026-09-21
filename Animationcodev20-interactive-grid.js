@@ -1395,16 +1395,18 @@ const baseBrightness =
 
 const flicker =
   0.90 +
+
   Math.sin(
-    performance.now() *
-    0.010 +
+    time *
+    0.006 +
     i *
     1.73
   ) *
   0.06 +
+
   Math.sin(
-    performance.now() *
-    0.023 +
+    time *
+    0.014 +
     i *
     4.17
   ) *
