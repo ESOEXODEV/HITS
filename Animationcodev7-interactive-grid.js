@@ -1331,9 +1331,9 @@ animateGridRise(elapsed) {
       0.04;
 
 
-    sizes[i] =
-      this.gridSizes[i] *
-      flicker;
+sizes[i] =
+  this.data.particleSize *
+  flicker;
 
   }
 
