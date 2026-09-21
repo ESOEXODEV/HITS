@@ -961,10 +961,8 @@ const z = 0;
 
 
 const startY =
-  -visibleHeight *
-  0.72 -
-  (rows - 1 - row) *
-  spacingY;
+  y -
+  2.25;
 
 
       startPositions[i3] =
@@ -1220,61 +1218,18 @@ animateGridRise(elapsed) {
     sizeAttribute.array;
 
 
-  /*
-   * Universal constant-speed rise.
-   */
-
-const progress =
-  Math.max(
-    0,
-    Math.min(
-      1,
-      (
-        elapsed -
-        this.introDelay
-      ) /
-      this.introGridDuration
-    )
-  );
-
-
-  /*
-   * Calculate the complete distance needed
-   * for the LAST drone in a column to reach
-   * its final grid position.
-   */
-
-  const bottomRow =
-    this.gridRows - 1;
-
-  const bottomIndex =
-    bottomRow *
-    this.gridColumns;
-
-  const totalTravel =
-    this.gridHomePositions[
-      bottomIndex * 3 + 1
-    ] -
-    this.gridStartPositions[
-      bottomIndex * 3 + 1
-    ];
-
-
-  const currentRise =
-    totalTravel *
-    progress;
-
-
-  /*
-   * Bottom edge of the visible grid.
-   * Drones remain invisible until they
-   * actually enter the formation.
-   */
-
-  const visibleBottom =
-    this.gridHomePositions[
-      bottomIndex * 3 + 1
-    ];
+  const overallProgress =
+    Math.max(
+      0,
+      Math.min(
+        1,
+        (
+          elapsed -
+          this.introDelay
+        ) /
+        this.introGridDuration
+      )
+    );
 
 
   for (
@@ -1283,64 +1238,109 @@ const progress =
     i++
   ) {
 
-    const i3 =
-      i * 3;
-
-    const homeX =
-      this.gridHomePositions[i3];
-
-    const homeY =
-      this.gridHomePositions[i3 + 1];
-
-    const homeZ =
-      this.gridHomePositions[i3 + 2];
-
-    const startY =
-      this.gridStartPositions[i3 + 1];
-
-
-    /*
-     * Every drone moves upward by exactly
-     * the same distance at exactly the
-     * same speed.
-     */
-
-    const movingY =
-      startY +
-      currentRise;
-
-
-    /*
-     * Once it reaches its assigned position,
-     * stop it there.
-     */
-
-    positions[i3] =
-      homeX;
-
-    positions[i3 + 1] =
-      Math.min(
-        movingY,
-        homeY
+    const row =
+      Math.floor(
+        i /
+        this.gridColumns
       );
 
-    positions[i3 + 2] =
-      homeZ;
+
+    /*
+     * Bottom rows begin first.
+     * Each row follows shortly after.
+     */
+
+    const rowDelay =
+      (
+        this.gridRows -
+        1 -
+        row
+      ) *
+      0.045;
+
+
+    const rowDuration =
+      0.72;
+
+
+    const rowProgress =
+      Math.max(
+        0,
+        Math.min(
+          1,
+          (
+            overallProgress -
+            rowDelay
+          ) /
+          rowDuration
+        )
+      );
 
 
     /*
-     * Only reveal a drone once it reaches
-     * the visible grid area.
+     * Smooth settling movement used by
+     * the original grid entrance.
+     */
+
+    const eased =
+      rowProgress *
+      rowProgress *
+      (
+        3 -
+        2 *
+        rowProgress
+      );
+
+
+    const i3 =
+      i *
+      3;
+
+
+    positions[i3] =
+      this.gridStartPositions[i3] +
+      (
+        this.gridHomePositions[i3] -
+        this.gridStartPositions[i3]
+      ) *
+      eased;
+
+
+    positions[i3 + 1] =
+      this.gridStartPositions[i3 + 1] +
+      (
+        this.gridHomePositions[i3 + 1] -
+        this.gridStartPositions[i3 + 1]
+      ) *
+      eased;
+
+
+    positions[i3 + 2] =
+      this.gridStartPositions[i3 + 2] +
+      (
+        this.gridHomePositions[i3 + 2] -
+        this.gridStartPositions[i3 + 2]
+      ) *
+      eased;
+
+
+    /*
+     * Fade each row in as it rises.
      */
 
     alphas[i] =
-      movingY >= visibleBottom
-        ? 1
-        : 0;
+      Math.max(
+        0,
+        Math.min(
+          1,
+          rowProgress *
+          1.5
+        )
+      );
 
 
     /*
-     * Preserve flicker.
+     * Existing drone flicker.
      */
 
     const flicker =
