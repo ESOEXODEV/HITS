@@ -809,14 +809,13 @@ class CreateParticles {
      */
 
 
-    const gridWidth =
-      visibleWidth *
-      0.78;
+const gridWidth =
+visibleWidth *
+0.90;
 
-
-    const gridHeight =
-      visibleHeight *
-      0.72;
+const gridHeight =
+visibleHeight *
+0.84;
 
 
     const spacingX =
@@ -929,15 +928,7 @@ class CreateParticles {
        */
 
 
-      const depthRandom =
-        Math.sin(
-          i * 17.231
-        );
-
-
-      const z =
-        depthRandom *
-        0.35;
+const z = 0;
 
 
       const i3 =
@@ -969,12 +960,9 @@ class CreateParticles {
        */
 
 
-      const startY =
-        -visibleHeight *
-        0.72 -
-        row *
-        spacingY *
-        0.35;
+const startY =
+-visibleHeight *
+0.72;
 
 
       startPositions[i3] =
