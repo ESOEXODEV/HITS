@@ -1221,9 +1221,7 @@ animateGridRise(elapsed) {
 
 
   /*
-   * One universal upward movement.
-   * There are no individual row delays
-   * and no easing between rows.
+   * Universal constant-speed rise.
    */
 
   const progress =
@@ -1239,17 +1237,42 @@ animateGridRise(elapsed) {
 
 
   /*
-   * Every drone moves upward by the
-   * same distance at the same speed.
+   * Calculate the complete distance needed
+   * for the LAST drone in a column to reach
+   * its final grid position.
    */
 
-  const travelDistance =
-    this.gridHomePositions[1] -
-    this.gridStartPositions[1];
+  const bottomRow =
+    this.gridRows - 1;
+
+  const bottomIndex =
+    bottomRow *
+    this.gridColumns;
+
+  const totalTravel =
+    this.gridHomePositions[
+      bottomIndex * 3 + 1
+    ] -
+    this.gridStartPositions[
+      bottomIndex * 3 + 1
+    ];
+
 
   const currentRise =
-    travelDistance *
+    totalTravel *
     progress;
+
+
+  /*
+   * Bottom edge of the visible grid.
+   * Drones remain invisible until they
+   * actually enter the formation.
+   */
+
+  const visibleBottom =
+    this.gridHomePositions[
+      bottomIndex * 3 + 1
+    ];
 
 
   for (
@@ -1259,8 +1282,7 @@ animateGridRise(elapsed) {
   ) {
 
     const i3 =
-      i *
-      3;
+      i * 3;
 
     const homeX =
       this.gridHomePositions[i3];
@@ -1276,7 +1298,9 @@ animateGridRise(elapsed) {
 
 
     /*
-     * All drones travel upward together.
+     * Every drone moves upward by exactly
+     * the same distance at exactly the
+     * same speed.
      */
 
     const movingY =
@@ -1285,8 +1309,8 @@ animateGridRise(elapsed) {
 
 
     /*
-     * Once a drone reaches its assigned
-     * grid position, it stops there.
+     * Once it reaches its assigned position,
+     * stop it there.
      */
 
     positions[i3] =
@@ -1303,14 +1327,18 @@ animateGridRise(elapsed) {
 
 
     /*
-     * Keep the existing visibility.
+     * Only reveal a drone once it reaches
+     * the visible grid area.
      */
 
-    alphas[i] = 1;
+    alphas[i] =
+      movingY >= visibleBottom
+        ? 1
+        : 0;
 
 
     /*
-     * Preserve the existing drone flicker.
+     * Preserve flicker.
      */
 
     const flicker =
@@ -1331,9 +1359,9 @@ animateGridRise(elapsed) {
       0.04;
 
 
-sizes[i] =
-  this.data.particleSize *
-  flicker;
+    sizes[i] =
+      this.data.particleSize *
+      flicker;
 
   }
 
@@ -1348,9 +1376,7 @@ sizes[i] =
     true;
 
 }
-
-
-
+  
   /*
    * ============================================================
    * PERMANENT INTERACTIVE GRID
