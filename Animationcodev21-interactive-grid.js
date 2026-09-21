@@ -1397,7 +1397,7 @@ const flicker =
   0.90 +
 
   Math.sin(
-    time *
+    elapsed *
     0.006 +
     i *
     1.73
@@ -1405,7 +1405,7 @@ const flicker =
   0.06 +
 
   Math.sin(
-    time *
+    elapsed *
     0.014 +
     i *
     4.17
@@ -1611,24 +1611,24 @@ this.particles.geometry.attributes.customColor.needsUpdate =
         0.16;
 
 
-      const flicker =
-        0.90 +
+const flicker =
+  0.90 +
 
-        Math.sin(
-          time *
-          0.010 +
-          i *
-          1.73
-        ) *
-        0.06 +
+  Math.sin(
+    time *
+    0.006 +
+    i *
+    1.73
+  ) *
+  0.06 +
 
-        Math.sin(
-          time *
-          0.023 +
-          i *
-          4.17
-        ) *
-        0.04;
+  Math.sin(
+    time *
+    0.014 +
+    i *
+    4.17
+  ) *
+  0.04;
 
 
       const brightness =
