@@ -188,14 +188,14 @@ class CreateParticles {
        * of the intro grid from the word animation.
        */
 
-      amount: 120,
+      amount: 216,
 
 
       /*
        * Base particle size.
        */
 
-      particleSize: 3,
+      particleSize: 3.5,
 
 
       /*
@@ -764,7 +764,7 @@ class CreateParticles {
 
 
     const columns =
-      15;
+      18;
 
 
     const rows =
