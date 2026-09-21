@@ -104,10 +104,10 @@ void main() {
 float halo =
   smoothstep(
     0.50,
-    0.10,
+    0.08,
     distanceFromCenter
   ) *
-  0.28;
+  0.36;
 
 
   float finalAlpha =
@@ -195,7 +195,7 @@ class CreateParticles {
        * Base particle size.
        */
 
-      particleSize: 4.25,
+      particleSize: 4.5,
 
 
       /*
