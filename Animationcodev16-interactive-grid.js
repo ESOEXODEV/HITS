@@ -53,12 +53,13 @@ void main() {
     );
 
 
-  gl_PointSize =
-    size *
-    (
-      300.0 /
-      -mvPosition.z
-    );
+gl_PointSize =
+  size *
+  2.0 *
+  (
+    300.0 /
+    -mvPosition.z
+  );
 
 
   gl_Position =
@@ -87,35 +88,62 @@ void main() {
     );
 
 
-  float distanceFromCenter =
-    distance(
-      gl_PointCoord,
-      vec2(
-        0.5,
-        0.5
-      )
-    );
+float distanceFromCenter =
+  distance(
+    gl_PointCoord,
+    vec2(
+      0.5,
+      0.5
+    )
+  );
 
 
-  /*
-   * Soft halo surrounding each drone.
-   */
+/*
+ * Keep the visible drone core approximately
+ * the same size as before, while the larger
+ * point sprite provides room for a real halo.
+ */
+
+float core =
+  smoothstep(
+    0.26,
+    0.20,
+    distanceFromCenter
+  );
+
+
+/*
+ * Soft outer glow.
+ *
+ * Strongest immediately around the core,
+ * then gradually fades into transparency.
+ */
 
 float halo =
   smoothstep(
     0.50,
-    0.08,
+    0.20,
     distanceFromCenter
   ) *
-  0.36;
+  0.32;
 
 
-  float finalAlpha =
-    max(
-      textureColor.a,
-      halo
-    ) *
-    vAlpha;
+/*
+ * Preserve some of the original particle
+ * texture inside the drone core.
+ */
+
+float texturedCore =
+  textureColor.a *
+  core;
+
+
+float finalAlpha =
+  max(
+    texturedCore,
+    halo
+  ) *
+  vAlpha;
 
 
   gl_FragColor =
