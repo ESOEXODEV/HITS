@@ -1343,39 +1343,91 @@ animateGridRise(elapsed) {
      * Existing drone flicker.
      */
 
-    const flicker =
-      0.90 +
-      Math.sin(
-        elapsed *
-        0.010 +
-        i *
-        1.73
-      ) *
-      0.06 +
-      Math.sin(
-        elapsed *
-        0.023 +
-        i *
-        4.17
-      ) *
-      0.04;
+const randomValue =
+  Math.sin(
+    i *
+    12.9898
+  ) *
+  43758.5453;
 
 
-    sizes[i] =
-      this.data.particleSize *
-      flicker;
+const normalizedRandom =
+  randomValue -
+  Math.floor(
+    randomValue
+  );
+
+
+const baseBrightness =
+  0.62 +
+  normalizedRandom *
+  0.16;
+
+
+const flicker =
+  0.90 +
+  Math.sin(
+    performance.now() *
+    0.010 +
+    i *
+    1.73
+  ) *
+  0.06 +
+  Math.sin(
+    performance.now() *
+    0.023 +
+    i *
+    4.17
+  ) *
+  0.04;
+
+
+const brightness =
+  baseBrightness *
+  flicker;
+
+
+const color =
+  new THREE.Color(
+    this.data.particleColor
+  );
+
+
+const colorAttribute =
+  this.particles.geometry.attributes.customColor;
+
+
+colorAttribute.setXYZ(
+  i,
+
+  color.r *
+  brightness,
+
+  color.g *
+  brightness,
+
+  color.b *
+  brightness
+);
+
+
+sizes[i] =
+  this.data.particleSize;
 
   }
 
 
-  positionAttribute.needsUpdate =
-    true;
+positionAttribute.needsUpdate =
+  true;
 
-  alphaAttribute.needsUpdate =
-    true;
+alphaAttribute.needsUpdate =
+  true;
 
-  sizeAttribute.needsUpdate =
-    true;
+sizeAttribute.needsUpdate =
+  true;
+
+this.particles.geometry.attributes.customColor.needsUpdate =
+  true;
 
 }
   
