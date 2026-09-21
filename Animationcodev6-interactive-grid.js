@@ -961,8 +961,10 @@ const z = 0;
 
 
 const startY =
--visibleHeight *
-0.72;
+  -visibleHeight *
+  0.72 -
+  (rows - 1 - row) *
+  spacingY;
 
 
       startPositions[i3] =
@@ -1197,285 +1199,155 @@ const startY =
    */
 
 
-  animateGridRise(
-    elapsed
+animateGridRise(elapsed) {
+
+  const positionAttribute =
+    this.particles.geometry.attributes.position;
+
+  const alphaAttribute =
+    this.particles.geometry.attributes.alpha;
+
+  const sizeAttribute =
+    this.particles.geometry.attributes.size;
+
+  const positions =
+    positionAttribute.array;
+
+  const alphas =
+    alphaAttribute.array;
+
+  const sizes =
+    sizeAttribute.array;
+
+
+  /*
+   * One universal upward movement.
+   * There are no individual row delays
+   * and no easing between rows.
+   */
+
+  const progress =
+    this.clamp(
+      (
+        elapsed -
+        this.introDelay
+      ) /
+      this.introGridDuration,
+      0,
+      1
+    );
+
+
+  /*
+   * Every drone moves upward by the
+   * same distance at the same speed.
+   */
+
+  const travelDistance =
+    this.gridHomePositions[1] -
+    this.gridStartPositions[1];
+
+  const currentRise =
+    travelDistance *
+    progress;
+
+
+  for (
+    let i = 0;
+    i < this.data.amount;
+    i++
   ) {
 
-    const pos =
-      this.particles.geometry
-        .attributes.position;
+    const i3 =
+      i *
+      3;
 
+    const homeX =
+      this.gridHomePositions[i3];
 
-    const alpha =
-      this.particles.geometry
-        .attributes.alpha;
+    const homeY =
+      this.gridHomePositions[i3 + 1];
 
+    const homeZ =
+      this.gridHomePositions[i3 + 2];
 
-    const colors =
-      this.particles.geometry
-        .attributes.customColor;
-
-
-    const count =
-      pos.count;
-
-
-    const time =
-      performance.now();
-
-
-    const color =
-      new THREE.Color(
-        this.data.particleColor
-      );
+    const startY =
+      this.gridStartPositions[i3 + 1];
 
 
     /*
-     * Overall rise progress.
+     * All drones travel upward together.
      */
 
+    const movingY =
+      startY +
+      currentRise;
 
-    const overallProgress =
-      THREE.MathUtils.clamp(
 
-        (
-          elapsed -
-          this.introDelay
-        ) /
-        this.introGridDuration,
+    /*
+     * Once a drone reaches its assigned
+     * grid position, it stops there.
+     */
 
-        0,
-        1
+    positions[i3] =
+      homeX;
 
+    positions[i3 + 1] =
+      Math.min(
+        movingY,
+        homeY
       );
 
-
-    for (
-      let i = 0;
-      i < count;
-      i++
-    ) {
-
-      const i3 =
-        i * 3;
-
-
-      const row =
-        Math.floor(
-          i /
-          this.gridColumns
-        );
-
-
-      /*
-       * Each row starts slightly later than
-       * the row beneath it.
-       *
-       * This keeps the "rising into place"
-       * feeling instead of having the entire
-       * grid move upward as one flat block.
-       */
-
-
-      const rowDelay =
-        (
-          this.gridRows -
-          1 -
-          row
-        ) *
-        0.045;
-
-
-      const rowDuration =
-        0.72;
-
-
-      let rowProgress =
-        (
-          overallProgress -
-          rowDelay
-        ) /
-        rowDuration;
-
-
-      rowProgress =
-        THREE.MathUtils.clamp(
-          rowProgress,
-          0,
-          1
-        );
-
-
-      /*
-       * Smooth ease-in/out.
-       */
-
-
-      const eased =
-        rowProgress *
-        rowProgress *
-        (
-          3 -
-          2 *
-          rowProgress
-        );
-
-
-      const startX =
-        this.gridStartPositions[i3];
-
-
-      const startY =
-        this.gridStartPositions[i3 + 1];
-
-
-      const startZ =
-        this.gridStartPositions[i3 + 2];
-
-
-      const targetX =
-        this.gridHomePositions[i3];
-
-
-      const targetY =
-        this.gridHomePositions[i3 + 1];
-
-
-      const targetZ =
-        this.gridHomePositions[i3 + 2];
-
-
-      const x =
-        THREE.MathUtils.lerp(
-          startX,
-          targetX,
-          eased
-        );
-
-
-      const y =
-        THREE.MathUtils.lerp(
-          startY,
-          targetY,
-          eased
-        );
-
-
-      const z =
-        THREE.MathUtils.lerp(
-          startZ,
-          targetZ,
-          eased
-        );
-
-
-      pos.setXYZ(
-        i,
-        x,
-        y,
-        z
-      );
-
-
-      /*
-       * Fade the drones in as they rise.
-       *
-       * Unlike the old intro, they never
-       * begin fading back out.
-       */
-
-
-      alpha.array[i] =
-        THREE.MathUtils.clamp(
-          rowProgress *
-          1.5,
-          0,
-          1
-        );
-
-
-      /*
-       * Same basic flicker character used
-       * in the word animation.
-       */
-
-
-      const randomValue =
-        Math.sin(
-          i *
-          12.9898
-        ) *
-        43758.5453;
-
-
-      const normalizedRandom =
-        randomValue -
-        Math.floor(
-          randomValue
-        );
-
-
-      const baseBrightness =
-        0.62 +
-        normalizedRandom *
-        0.16;
-
-
-      const flicker =
-        0.90 +
-
-        Math.sin(
-          time *
-          0.010 +
-          i *
-          1.73
-        ) *
-        0.06 +
-
-        Math.sin(
-          time *
-          0.023 +
-          i *
-          4.17
-        ) *
-        0.04;
-
-
-      const brightness =
-        baseBrightness *
-        flicker;
-
-
-      colors.setXYZ(
-
-        i,
-
-        color.r *
-        brightness,
-
-        color.g *
-        brightness,
-
-        color.b *
-        brightness
-
-      );
-
-    }
-
-
-    pos.needsUpdate =
-      true;
-
-
-    alpha.needsUpdate =
-      true;
-
-
-    colors.needsUpdate =
-      true;
+    positions[i3 + 2] =
+      homeZ;
+
+
+    /*
+     * Keep the existing visibility.
+     */
+
+    alphas[i] = 1;
+
+
+    /*
+     * Preserve the existing drone flicker.
+     */
+
+    const flicker =
+      0.90 +
+      Math.sin(
+        elapsed *
+        0.010 +
+        i *
+        1.73
+      ) *
+      0.06 +
+      Math.sin(
+        elapsed *
+        0.023 +
+        i *
+        4.17
+      ) *
+      0.04;
+
+
+    sizes[i] =
+      this.gridSizes[i] *
+      flicker;
 
   }
+
+
+  positionAttribute.needsUpdate =
+    true;
+
+  alphaAttribute.needsUpdate =
+    true;
+
+  sizeAttribute.needsUpdate =
+    true;
+
+}
 
 
 
