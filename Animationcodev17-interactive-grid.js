@@ -106,8 +106,8 @@ float distanceFromCenter =
 
 float core =
   smoothstep(
-    0.26,
-    0.20,
+    0.22,
+    0.17,
     distanceFromCenter
   );
 
@@ -122,10 +122,10 @@ float core =
 float halo =
   smoothstep(
     0.50,
-    0.20,
+    0.17,
     distanceFromCenter
   ) *
-  0.32;
+  0.18;
 
 
 /*
