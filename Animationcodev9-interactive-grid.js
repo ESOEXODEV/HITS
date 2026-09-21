@@ -1224,16 +1224,18 @@ animateGridRise(elapsed) {
    * Universal constant-speed rise.
    */
 
-  const progress =
-    this.clamp(
+const progress =
+  Math.max(
+    0,
+    Math.min(
+      1,
       (
         elapsed -
         this.introDelay
       ) /
-      this.introGridDuration,
-      0,
-      1
-    );
+      this.introGridDuration
+    )
+  );
 
 
   /*
