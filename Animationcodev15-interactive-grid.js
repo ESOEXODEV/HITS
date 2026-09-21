@@ -195,7 +195,7 @@ class CreateParticles {
        * Base particle size.
        */
 
-      particleSize: 4.5,
+      particleSize: 5,
 
 
       /*
