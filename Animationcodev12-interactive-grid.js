@@ -101,13 +101,13 @@ void main() {
    * Soft halo surrounding each drone.
    */
 
-  float halo =
-    smoothstep(
-      0.50,
-      0.15,
-      distanceFromCenter
-    ) *
-    0.20;
+float halo =
+  smoothstep(
+    0.50,
+    0.10,
+    distanceFromCenter
+  ) *
+  0.28;
 
 
   float finalAlpha =
@@ -195,7 +195,7 @@ class CreateParticles {
        * Base particle size.
        */
 
-      particleSize: 3.5,
+      particleSize: 4.25,
 
 
       /*
