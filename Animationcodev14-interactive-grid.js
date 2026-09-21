@@ -1768,34 +1768,12 @@ this.particles.geometry.attributes.customColor.needsUpdate =
        */
 
 
-      else {
+ else {
 
-        const sizeRandomValue =
-          Math.sin(
-            i *
-            78.233
-          ) *
-          43758.5453;
+  size.array[i] =
+    this.data.particleSize;
 
-
-        const normalizedSizeRandom =
-          sizeRandomValue -
-          Math.floor(
-            sizeRandomValue
-          );
-
-
-        const sizeVariation =
-          0.85 +
-          normalizedSizeRandom *
-          0.30;
-
-
-        size.array[i] =
-          this.data.particleSize *
-          sizeVariation;
-
-      }
+}
 
 
       /*
