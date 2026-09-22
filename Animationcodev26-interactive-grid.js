@@ -1919,58 +1919,87 @@ if (
       );
 
 
-    if (
-      insideInner
-    ) {
+if (
+  insideInner
+) {
 
-      /*
-       * Inner layer:
-       * completely clear the media.
-       */
+  /*
+   * Inner layer:
+   *
+   * Reflect drones outward across their nearest
+   * project edge instead of collapsing them
+   * directly onto that edge.
+   *
+   * This preserves the spacing between the
+   * original grid rows / columns.
+   */
 
-      displacementStrength =
-        1;
+  displacementStrength =
+    1;
 
 
-      if (
-        nearestEdge ===
-        distanceLeft
-      ) {
+  if (
+    nearestEdge ===
+    distanceLeft
+  ) {
 
-        targetX =
-          projectBounds.left;
+    const distanceInside =
+      initX -
+      projectBounds.left;
 
-      }
 
-      else if (
-        nearestEdge ===
-        distanceRight
-      ) {
+    targetX =
+      projectBounds.left -
+      distanceInside;
 
-        targetX =
-          projectBounds.right;
+  }
 
-      }
+  else if (
+    nearestEdge ===
+    distanceRight
+  ) {
 
-      else if (
-        nearestEdge ===
-        distanceTop
-      ) {
+    const distanceInside =
+      projectBounds.right -
+      initX;
 
-        targetY =
-          projectBounds.top;
 
-      }
+    targetX =
+      projectBounds.right +
+      distanceInside;
 
-      else {
+  }
 
-        targetY =
-          projectBounds.bottom;
+  else if (
+    nearestEdge ===
+    distanceTop
+  ) {
 
-      }
+    const distanceInside =
+      projectBounds.top -
+      initY;
 
-    }
 
+    targetY =
+      projectBounds.top +
+      distanceInside;
+
+  }
+
+  else {
+
+    const distanceInside =
+      initY -
+      projectBounds.bottom;
+
+
+    targetY =
+      projectBounds.bottom -
+      distanceInside;
+
+  }
+
+}
 
     else if (
       insideOuter
@@ -2292,35 +2321,36 @@ colors.setXYZ(
 if (
   hasMouseIntersection &&
   mouseDistance <
-  this.data.area
+  this.data.area &&
+  displacementStrength === 0
 ) {
 
-        const angle =
-          Math.atan2(
-            dy,
-            dx
-          );
+  const angle =
+    Math.atan2(
+      dy,
+      dx
+    );
 
 
-        px +=
-          force *
-          Math.cos(
-            angle
-          );
+  px +=
+    force *
+    Math.cos(
+      angle
+    );
 
 
-        py +=
-          force *
-          Math.sin(
-            angle
-          );
+  py +=
+    force *
+    Math.sin(
+      angle
+    );
 
 
-        size.array[i] =
-          this.data.particleSize *
-          1.15;
+  size.array[i] =
+    this.data.particleSize *
+    1.15;
 
-      }
+}
 
 
       /*
