@@ -2368,36 +2368,6 @@ pz +=
   this.data.ease;
 
 
-/*
- * ========================================================
- * RETURN / MOVE TO TARGET
- * ========================================================
- */
-
-px +=
-  (
-    targetX -
-    px
-  ) *
-  this.data.ease;
-
-
-py +=
-  (
-    targetY -
-    py
-  ) *
-  this.data.ease;
-
-
-pz +=
-  (
-    initZ -
-    pz
-  ) *
-  this.data.ease;
-
-
       pos.setXYZ(
         i,
         px,
