@@ -2384,13 +2384,45 @@ pz +=
     }
 
 
-    /*
-     * Phase 2:
-     * permanent interactive grid.
-     */
+/*
+ * Phase 2:
+ * permanent interactive grid.
+ */
 
 
-    this.updateInteractiveGrid();
+/*
+ * Enable CMS project interaction only after
+ * the drone entrance has fully completed.
+ */
+
+if (
+  !this.cmsReady
+) {
+
+  this.cmsReady =
+    true;
+
+
+  const cmsWrapper =
+    document.querySelector(
+      '.cms-hover-wrapper'
+    );
+
+
+  if (
+    cmsWrapper
+  ) {
+
+    cmsWrapper.classList.add(
+      'cms-ready'
+    );
+
+  }
+
+}
+
+
+this.updateInteractiveGrid();
 
   }
 
