@@ -1927,15 +1927,39 @@ if (
    * Inner layer:
    *
    * Reflect drones outward across their nearest
-   * project edge instead of collapsing them
-   * directly onto that edge.
-   *
-   * This preserves the spacing between the
-   * original grid rows / columns.
+   * project edge while adding a small clearance
+   * offset to reduce collisions with the existing
+   * outer grid.
    */
 
   displacementStrength =
     1;
+
+
+  const gridSpacingX =
+    (
+      copy.getX(1) -
+      copy.getX(0)
+    );
+
+
+  const gridSpacingY =
+    Math.abs(
+      copy.getY(
+        this.gridColumns
+      ) -
+      copy.getY(0)
+    );
+
+
+  const clearanceX =
+    gridSpacingX *
+    0.28;
+
+
+  const clearanceY =
+    gridSpacingY *
+    0.28;
 
 
   if (
@@ -1948,9 +1972,10 @@ if (
       projectBounds.left;
 
 
-    targetX =
-      projectBounds.left -
-      distanceInside;
+targetX =
+  projectBounds.left -
+  distanceInside -
+  clearanceX;
 
   }
 
@@ -1964,9 +1989,10 @@ if (
       initX;
 
 
-    targetX =
-      projectBounds.right +
-      distanceInside;
+targetX =
+  projectBounds.right +
+  distanceInside +
+  clearanceX;
 
   }
 
@@ -1980,9 +2006,10 @@ if (
       initY;
 
 
-    targetY =
-      projectBounds.top +
-      distanceInside;
+targetY =
+  projectBounds.top +
+  distanceInside +
+  clearanceY;
 
   }
 
@@ -1993,9 +2020,10 @@ if (
       projectBounds.bottom;
 
 
-    targetY =
-      projectBounds.bottom -
-      distanceInside;
+targetY =
+  projectBounds.bottom -
+  distanceInside -
+  clearanceY;
 
   }
 
@@ -2321,8 +2349,7 @@ colors.setXYZ(
 if (
   hasMouseIntersection &&
   mouseDistance <
-  this.data.area &&
-  displacementStrength === 0
+  this.data.area
 ) {
 
   const angle =
@@ -2332,23 +2359,45 @@ if (
     );
 
 
+  /*
+   * Preserve cursor responsiveness during CMS
+   * displacement, but reduce its influence on
+   * drones already being repositioned.
+   *
+   * Normal drone: 100% cursor force
+   * Outer drone: progressively reduced
+   * Inner drone: 25% cursor force
+   */
+
+  const cmsMouseInfluence =
+    1 -
+    displacementStrength *
+    0.75;
+
+
   px +=
     force *
     Math.cos(
       angle
-    );
+    ) *
+    cmsMouseInfluence;
 
 
   py +=
     force *
     Math.sin(
       angle
-    );
+    ) *
+    cmsMouseInfluence;
 
 
   size.array[i] =
     this.data.particleSize *
-    1.15;
+    (
+      1 +
+      0.15 *
+      cmsMouseInfluence
+    );
 
 }
 
