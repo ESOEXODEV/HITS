@@ -1811,11 +1811,19 @@ const initZ =
  * CMS DISPLACEMENT TARGET
  * ========================================================
  *
- * Inner drones completely clear the project.
+ * Compression-wave behavior:
  *
- * Drones in the surrounding secondary zone
- * move outward more gently so the inner drones
- * have somewhere to go without stacking.
+ * 1. Drones underneath the media move only far
+ *    enough to clear the nearest edge.
+ *
+ * 2. Drones immediately outside the media move
+ *    outward to make room.
+ *
+ * 3. That outward movement decreases smoothly
+ *    with distance from the media.
+ *
+ * This preserves the original grid while making
+ * it appear compressed around the project.
  */
 
 
@@ -1834,110 +1842,12 @@ if (
   projectOuterBounds
 ) {
 
-  const insideInner =
-    initX >
-      projectBounds.left &&
-    initX <
-      projectBounds.right &&
-    initY <
-      projectBounds.top &&
-    initY >
-      projectBounds.bottom;
-
-
-  const insideOuter =
-    initX >
-      projectOuterBounds.left &&
-    initX <
-      projectOuterBounds.right &&
-    initY <
-      projectOuterBounds.top &&
-    initY >
-      projectOuterBounds.bottom;
-
-
-  if (
-    insideInner ||
-    insideOuter
-  ) {
-
-    const centerX =
-      (
-        projectBounds.left +
-        projectBounds.right
-      ) /
-      2;
-
-
-    const centerY =
-      (
-        projectBounds.top +
-        projectBounds.bottom
-      ) /
-      2;
-
-
-    /*
-     * Find the nearest side of the INNER
-     * project rectangle.
-     */
-
-    const distanceLeft =
-      Math.abs(
-        initX -
-        projectBounds.left
-      );
-
-
-    const distanceRight =
-      Math.abs(
-        projectBounds.right -
-        initX
-      );
-
-
-    const distanceTop =
-      Math.abs(
-        projectBounds.top -
-        initY
-      );
-
-
-    const distanceBottom =
-      Math.abs(
-        initY -
-        projectBounds.bottom
-      );
-
-
-    const nearestEdge =
-      Math.min(
-        distanceLeft,
-        distanceRight,
-        distanceTop,
-        distanceBottom
-      );
-
-
-if (
-  insideInner
-) {
-
   /*
-   * Inner layer:
-   *
-   * Reflect drones outward across their nearest
-   * project edge while adding a small clearance
-   * offset to reduce collisions with the existing
-   * outer grid.
+   * Actual spacing of the permanent grid.
    */
 
-  displacementStrength =
-    1;
-
-
   const gridSpacingX =
-    (
+    Math.abs(
       copy.getX(1) -
       copy.getX(0)
     );
@@ -1952,235 +1862,420 @@ if (
     );
 
 
-  const clearanceX =
+  /*
+   * Inner drones should sit just outside the
+   * media rather than being reflected outward.
+   *
+   * About one-third of a grid cell gives the
+   * video breathing room without creating a
+   * detached new row or column.
+   */
+
+  const innerClearanceX =
     gridSpacingX *
-    0.28;
+    0.32;
 
 
-  const clearanceY =
+  const innerClearanceY =
     gridSpacingY *
-    0.28;
+    0.32;
+
+
+  /*
+   * Distance over which the surrounding grid
+   * participates in the compression wave.
+   *
+   * Roughly three grid layers.
+   */
+
+  const influenceX =
+    gridSpacingX *
+    3.25;
+
+
+  const influenceY =
+    gridSpacingY *
+    3.25;
+
+
+  /*
+   * Maximum movement of the first OUTER layer.
+   *
+   * This is intentionally smaller than one
+   * complete grid cell.
+   */
+
+  const maxOuterPushX =
+    gridSpacingX *
+    0.62;
+
+
+  const maxOuterPushY =
+    gridSpacingY *
+    0.62;
+
+
+  const insideInner =
+    initX >
+      projectBounds.left &&
+    initX <
+      projectBounds.right &&
+    initY <
+      projectBounds.top &&
+    initY >
+      projectBounds.bottom;
 
 
   if (
-    nearestEdge ===
-    distanceLeft
+    insideInner
   ) {
 
-    const distanceInside =
+    /*
+     * ====================================================
+     * INNER DRONES
+     * ====================================================
+     *
+     * Move only to the nearest edge plus a small
+     * fixed clearance.
+     */
+
+
+    const distanceLeft =
       initX -
       projectBounds.left;
 
 
-targetX =
-  projectBounds.left -
-  distanceInside -
-  clearanceX;
-
-  }
-
-  else if (
-    nearestEdge ===
-    distanceRight
-  ) {
-
-    const distanceInside =
+    const distanceRight =
       projectBounds.right -
       initX;
 
 
-targetX =
-  projectBounds.right +
-  distanceInside +
-  clearanceX;
-
-  }
-
-  else if (
-    nearestEdge ===
-    distanceTop
-  ) {
-
-    const distanceInside =
+    const distanceTop =
       projectBounds.top -
       initY;
 
 
-targetY =
-  projectBounds.top +
-  distanceInside +
-  clearanceY;
-
-  }
-
-  else {
-
-    const distanceInside =
+    const distanceBottom =
       initY -
       projectBounds.bottom;
 
 
-targetY =
-  projectBounds.bottom -
-  distanceInside -
-  clearanceY;
+    const nearestEdge =
+      Math.min(
+        distanceLeft,
+        distanceRight,
+        distanceTop,
+        distanceBottom
+      );
+
+
+    displacementStrength =
+      1;
+
+
+    if (
+      nearestEdge ===
+      distanceLeft
+    ) {
+
+      targetX =
+        projectBounds.left -
+        innerClearanceX;
+
+    }
+
+    else if (
+      nearestEdge ===
+      distanceRight
+    ) {
+
+      targetX =
+        projectBounds.right +
+        innerClearanceX;
+
+    }
+
+    else if (
+      nearestEdge ===
+      distanceTop
+    ) {
+
+      targetY =
+        projectBounds.top +
+        innerClearanceY;
+
+    }
+
+    else {
+
+      targetY =
+        projectBounds.bottom -
+        innerClearanceY;
+
+    }
 
   }
 
-}
 
-    else if (
-      insideOuter
-    ) {
+  else {
 
-      /*
-       * Outer layer:
-       *
-       * Move away from the project center,
-       * but much less dramatically than the
-       * drones underneath the media.
-       */
-
-      const outerWidth =
-        projectOuterBounds.right -
-        projectOuterBounds.left;
+    /*
+     * ====================================================
+     * OUTER COMPRESSION WAVE
+     * ====================================================
+     *
+     * Determine how far this drone sits outside
+     * each edge of the project.
+     */
 
 
-      const outerHeight =
-        projectOuterBounds.top -
-        projectOuterBounds.bottom;
-
-
-      const innerWidth =
-        projectBounds.right -
-        projectBounds.left;
-
-
-      const innerHeight =
-        projectBounds.top -
+    const withinVerticalSpan =
+      initY <=
+        projectBounds.top &&
+      initY >=
         projectBounds.bottom;
 
 
-      const outerDistanceX =
+    const withinHorizontalSpan =
+      initX >=
+        projectBounds.left &&
+      initX <=
+        projectBounds.right;
+
+
+    let distanceFromEdge =
+      Infinity;
+
+    let directionX =
+      0;
+
+    let directionY =
+      0;
+
+    let influenceDistance =
+      1;
+
+    let maximumPush =
+      0;
+
+
+    /*
+     * Left side.
+     */
+
+    if (
+      withinVerticalSpan &&
+      initX <
+        projectBounds.left
+    ) {
+
+      const distance =
+        projectBounds.left -
+        initX;
+
+
+      if (
+        distance <
+        distanceFromEdge
+      ) {
+
+        distanceFromEdge =
+          distance;
+
+        directionX =
+          -1;
+
+        directionY =
+          0;
+
+        influenceDistance =
+          influenceX;
+
+        maximumPush =
+          maxOuterPushX;
+
+      }
+
+    }
+
+
+    /*
+     * Right side.
+     */
+
+    if (
+      withinVerticalSpan &&
+      initX >
+        projectBounds.right
+    ) {
+
+      const distance =
+        initX -
+        projectBounds.right;
+
+
+      if (
+        distance <
+        distanceFromEdge
+      ) {
+
+        distanceFromEdge =
+          distance;
+
+        directionX =
+          1;
+
+        directionY =
+          0;
+
+        influenceDistance =
+          influenceX;
+
+        maximumPush =
+          maxOuterPushX;
+
+      }
+
+    }
+
+
+    /*
+     * Top side.
+     */
+
+    if (
+      withinHorizontalSpan &&
+      initY >
+        projectBounds.top
+    ) {
+
+      const distance =
+        initY -
+        projectBounds.top;
+
+
+      if (
+        distance <
+        distanceFromEdge
+      ) {
+
+        distanceFromEdge =
+          distance;
+
+        directionX =
+          0;
+
+        directionY =
+          1;
+
+        influenceDistance =
+          influenceY;
+
+        maximumPush =
+          maxOuterPushY;
+
+      }
+
+    }
+
+
+    /*
+     * Bottom side.
+     */
+
+    if (
+      withinHorizontalSpan &&
+      initY <
+        projectBounds.bottom
+    ) {
+
+      const distance =
+        projectBounds.bottom -
+        initY;
+
+
+      if (
+        distance <
+        distanceFromEdge
+      ) {
+
+        distanceFromEdge =
+          distance;
+
+        directionX =
+          0;
+
+        directionY =
+          -1;
+
+        influenceDistance =
+          influenceY;
+
+        maximumPush =
+          maxOuterPushY;
+
+      }
+
+    }
+
+
+    if (
+      distanceFromEdge <
+      influenceDistance
+    ) {
+
+      /*
+       * 1 at the video edge → 0 at the outside
+       * of the influence field.
+       */
+
+      const normalizedDistance =
         Math.max(
           0,
-          Math.abs(
-            initX -
-            centerX
-          ) -
-          innerWidth /
-          2
-        );
-
-
-      const outerDistanceY =
-        Math.max(
-          0,
-          Math.abs(
-            initY -
-            centerY
-          ) -
-          innerHeight /
-          2
-        );
-
-
-      const maxOuterX =
-        Math.max(
-          (
-            outerWidth -
-            innerWidth
-          ) /
-          2,
-          0.001
-        );
-
-
-      const maxOuterY =
-        Math.max(
-          (
-            outerHeight -
-            innerHeight
-          ) /
-          2,
-          0.001
-        );
-
-
-      const normalizedOuterDistance =
-        Math.min(
-          1,
-          Math.max(
-            outerDistanceX /
-              maxOuterX,
-            outerDistanceY /
-              maxOuterY
+          Math.min(
+            1,
+            distanceFromEdge /
+              influenceDistance
           )
         );
 
 
       /*
-       * Strongest beside the video,
-       * fading toward the outside of
-       * the secondary influence zone.
+       * Curved falloff.
+       *
+       * Squaring the remaining influence gives
+       * us the compressed / logarithmic-looking
+       * spacing:
+       *
+       * strong near the video,
+       * moderate one layer away,
+       * subtle farther out.
        */
 
-      const outerInfluence =
-        1 -
-        normalizedOuterDistance;
+      const influence =
+        Math.pow(
+          1 -
+          normalizedDistance,
+          2
+        );
 
 
       displacementStrength =
-        outerInfluence *
-        0.55;
+        influence;
 
 
-      /*
-       * Push the secondary layer away from
-       * the project center while preserving
-       * its existing grid spacing.
-       */
-
-      const directionX =
-        initX >=
-        centerX
-          ? 1
-          : -1;
+      targetX =
+        initX +
+        directionX *
+        maximumPush *
+        influence;
 
 
-      const directionY =
-        initY >=
-        centerY
-          ? 1
-          : -1;
-
-
-      if (
-        nearestEdge ===
-          distanceLeft ||
-        nearestEdge ===
-          distanceRight
-      ) {
-
-        targetX =
-          initX +
-          directionX *
-          maxOuterX *
-          0.45 *
-          outerInfluence;
-
-      }
-
-      else {
-
-        targetY =
-          initY +
-          directionY *
-          maxOuterY *
-          0.45 *
-          outerInfluence;
-
-      }
+      targetY =
+        initY +
+        directionY *
+        maximumPush *
+        influence;
 
     }
 
