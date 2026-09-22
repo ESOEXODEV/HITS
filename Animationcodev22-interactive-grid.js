@@ -1707,62 +1707,18 @@ const flicker =
         d;
 
 
-      /*
-       * ========================================================
-       * CLICK / PRESS BEHAVIOR
-       * ========================================================
-       *
-       * This preserves the more aggressive
-       * displacement used when the mouse is
-       * held down.
-       */
+/*
+ * ========================================================
+ * HOVER BEHAVIOR
+ * ========================================================
+ */
 
 
-      if (
-        this.buttom &&
-        hasMouseIntersection
-      ) {
-
-        const angle =
-          Math.atan2(
-            dy,
-            dx
-          );
-
-
-        px -=
-          force *
-          Math.cos(
-            angle
-          );
-
-
-        py -=
-          force *
-          Math.sin(
-            angle
-          );
-
-
-        size.array[i] =
-          this.data.particleSize *
-          1.15;
-
-      }
-
-
-      /*
-       * ========================================================
-       * HOVER BEHAVIOR
-       * ========================================================
-       */
-
-
-      else if (
-        hasMouseIntersection &&
-        mouseDistance <
-        this.data.area
-      ) {
+if (
+  hasMouseIntersection &&
+  mouseDistance <
+  this.data.area
+) {
 
         const angle =
           Math.atan2(
