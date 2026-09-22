@@ -2409,12 +2409,19 @@ colors.setXYZ(
  */
 
 
+const alphaEase =
+  targetAlpha <
+  alpha.array[i]
+    ? 0.16
+    : 0.08;
+
+
 alpha.array[i] +=
   (
     targetAlpha -
     alpha.array[i]
   ) *
-  0.06;
+  alphaEase;
 
 
 if (
