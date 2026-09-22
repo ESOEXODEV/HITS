@@ -1604,6 +1604,9 @@ const time =
 let projectBounds =
   null;
 
+let projectOuterBounds =
+  null;
+
 
 if (
   this.activeProject
@@ -1701,25 +1704,64 @@ if (
     0.025;
 
 
-  projectBounds = {
+projectBounds = {
 
-    left:
-      left -
-      paddingX,
+  left:
+    left -
+    paddingX,
 
-    right:
-      right +
-      paddingX,
+  right:
+    right +
+    paddingX,
 
-    top:
-      top +
-      paddingY,
+  top:
+    top +
+    paddingY,
 
-    bottom:
-      bottom -
-      paddingY
+  bottom:
+    bottom -
+    paddingY
 
-  };
+};
+
+
+/*
+ * Secondary influence zone.
+ *
+ * Drones inside this larger rectangle move
+ * less dramatically, creating space for the
+ * drones clearing the video itself.
+ */
+
+const outerPaddingX =
+  visibleWidth *
+  0.055;
+
+
+const outerPaddingY =
+  visibleHeight *
+  0.075;
+
+
+projectOuterBounds = {
+
+  left:
+    projectBounds.left -
+    outerPaddingX,
+
+  right:
+    projectBounds.right +
+    outerPaddingX,
+
+  top:
+    projectBounds.top +
+    outerPaddingY,
+
+  bottom:
+    projectBounds.bottom -
+    outerPaddingY
+
+};
 
 }
 
@@ -1760,36 +1802,364 @@ for (
         copy.getY(i);
 
 
-      const initZ =
-        copy.getZ(i);
+const initZ =
+  copy.getZ(i);
 
+
+/*
+ * ========================================================
+ * CMS DISPLACEMENT TARGET
+ * ========================================================
+ *
+ * Inner drones completely clear the project.
+ *
+ * Drones in the surrounding secondary zone
+ * move outward more gently so the inner drones
+ * have somewhere to go without stacking.
+ */
+
+
+let targetX =
+  initX;
+
+let targetY =
+  initY;
+
+let displacementStrength =
+  0;
+
+
+if (
+  projectBounds &&
+  projectOuterBounds
+) {
+
+  const insideInner =
+    initX >
+      projectBounds.left &&
+    initX <
+      projectBounds.right &&
+    initY <
+      projectBounds.top &&
+    initY >
+      projectBounds.bottom;
+
+
+  const insideOuter =
+    initX >
+      projectOuterBounds.left &&
+    initX <
+      projectOuterBounds.right &&
+    initY <
+      projectOuterBounds.top &&
+    initY >
+      projectOuterBounds.bottom;
+
+
+  if (
+    insideInner ||
+    insideOuter
+  ) {
+
+    const centerX =
+      (
+        projectBounds.left +
+        projectBounds.right
+      ) /
+      2;
+
+
+    const centerY =
+      (
+        projectBounds.top +
+        projectBounds.bottom
+      ) /
+      2;
+
+
+    /*
+     * Find the nearest side of the INNER
+     * project rectangle.
+     */
+
+    const distanceLeft =
+      Math.abs(
+        initX -
+        projectBounds.left
+      );
+
+
+    const distanceRight =
+      Math.abs(
+        projectBounds.right -
+        initX
+      );
+
+
+    const distanceTop =
+      Math.abs(
+        projectBounds.top -
+        initY
+      );
+
+
+    const distanceBottom =
+      Math.abs(
+        initY -
+        projectBounds.bottom
+      );
+
+
+    const nearestEdge =
+      Math.min(
+        distanceLeft,
+        distanceRight,
+        distanceTop,
+        distanceBottom
+      );
+
+
+    if (
+      insideInner
+    ) {
 
       /*
-       * ========================================================
-       * FLICKER
-       * ========================================================
+       * Inner layer:
+       * completely clear the media.
        */
 
-
-      const randomValue =
-        Math.sin(
-          i *
-          12.9898
-        ) *
-        43758.5453;
+      displacementStrength =
+        1;
 
 
-      const normalizedRandom =
-        randomValue -
-        Math.floor(
-          randomValue
+      if (
+        nearestEdge ===
+        distanceLeft
+      ) {
+
+        targetX =
+          projectBounds.left;
+
+      }
+
+      else if (
+        nearestEdge ===
+        distanceRight
+      ) {
+
+        targetX =
+          projectBounds.right;
+
+      }
+
+      else if (
+        nearestEdge ===
+        distanceTop
+      ) {
+
+        targetY =
+          projectBounds.top;
+
+      }
+
+      else {
+
+        targetY =
+          projectBounds.bottom;
+
+      }
+
+    }
+
+
+    else if (
+      insideOuter
+    ) {
+
+      /*
+       * Outer layer:
+       *
+       * Move away from the project center,
+       * but much less dramatically than the
+       * drones underneath the media.
+       */
+
+      const outerWidth =
+        projectOuterBounds.right -
+        projectOuterBounds.left;
+
+
+      const outerHeight =
+        projectOuterBounds.top -
+        projectOuterBounds.bottom;
+
+
+      const innerWidth =
+        projectBounds.right -
+        projectBounds.left;
+
+
+      const innerHeight =
+        projectBounds.top -
+        projectBounds.bottom;
+
+
+      const outerDistanceX =
+        Math.max(
+          0,
+          Math.abs(
+            initX -
+            centerX
+          ) -
+          innerWidth /
+          2
         );
 
 
-      const baseBrightness =
-        0.62 +
-        normalizedRandom *
-        0.16;
+      const outerDistanceY =
+        Math.max(
+          0,
+          Math.abs(
+            initY -
+            centerY
+          ) -
+          innerHeight /
+          2
+        );
+
+
+      const maxOuterX =
+        Math.max(
+          (
+            outerWidth -
+            innerWidth
+          ) /
+          2,
+          0.001
+        );
+
+
+      const maxOuterY =
+        Math.max(
+          (
+            outerHeight -
+            innerHeight
+          ) /
+          2,
+          0.001
+        );
+
+
+      const normalizedOuterDistance =
+        Math.min(
+          1,
+          Math.max(
+            outerDistanceX /
+              maxOuterX,
+            outerDistanceY /
+              maxOuterY
+          )
+        );
+
+
+      /*
+       * Strongest beside the video,
+       * fading toward the outside of
+       * the secondary influence zone.
+       */
+
+      const outerInfluence =
+        1 -
+        normalizedOuterDistance;
+
+
+      displacementStrength =
+        outerInfluence *
+        0.55;
+
+
+      /*
+       * Push the secondary layer away from
+       * the project center while preserving
+       * its existing grid spacing.
+       */
+
+      const directionX =
+        initX >=
+        centerX
+          ? 1
+          : -1;
+
+
+      const directionY =
+        initY >=
+        centerY
+          ? 1
+          : -1;
+
+
+      if (
+        nearestEdge ===
+          distanceLeft ||
+        nearestEdge ===
+          distanceRight
+      ) {
+
+        targetX =
+          initX +
+          directionX *
+          maxOuterX *
+          0.45 *
+          outerInfluence;
+
+      }
+
+      else {
+
+        targetY =
+          initY +
+          directionY *
+          maxOuterY *
+          0.45 *
+          outerInfluence;
+
+      }
+
+    }
+
+  }
+
+}
+
+
+/*
+ * ========================================================
+ * FLICKER
+ * ========================================================
+ *
+ * Existing flicker is intentionally unchanged.
+ */
+
+
+const randomValue =
+  Math.sin(
+    i *
+      12.9898
+  ) *
+  43758.5453;
+
+
+const normalizedRandom =
+  randomValue -
+  Math.floor(
+    randomValue
+  );
+
+
+const baseBrightness =
+  0.62 +
+  normalizedRandom *
+  0.16;
 
 
 const flicker =
@@ -1812,25 +2182,49 @@ const flicker =
   0.04;
 
 
-      const brightness =
-        baseBrightness *
-        flicker;
+const brightness =
+  baseBrightness *
+  flicker;
 
 
-      colors.setXYZ(
+/*
+ * ========================================================
+ * MOVEMENT BRIGHTNESS
+ * ========================================================
+ *
+ * This multiplies the completed flicker rather
+ * than replacing or modifying it.
+ *
+ * 0 displacement = existing brightness
+ * full displacement = up to 12% brighter
+ */
 
-        i,
 
-        color.r *
-        brightness,
+const movementBrightness =
+  1 +
+  displacementStrength *
+  0.12;
 
-        color.g *
-        brightness,
 
-        color.b *
-        brightness
+const finalBrightness =
+  brightness *
+  movementBrightness;
 
-      );
+
+colors.setXYZ(
+
+  i,
+
+  color.r *
+  finalBrightness,
+
+  color.g *
+  finalBrightness,
+
+  color.b *
+  finalBrightness
+
+);
 
 
       /*
@@ -1946,109 +2340,32 @@ if (
 
 /*
  * ========================================================
- * CMS PROJECT DISPLACEMENT
+ * RETURN / MOVE TO TARGET
  * ========================================================
  */
 
-let targetX =
-  initX;
-
-let targetY =
-  initY;
-
-
-if (
-  projectBounds &&
-  initX >
-    projectBounds.left &&
-  initX <
-    projectBounds.right &&
-  initY <
-    projectBounds.top &&
-  initY >
-    projectBounds.bottom
-) {
-
-  /*
-   * Determine which edge of the project
-   * rectangle is closest to this drone.
-   */
-
-  const distanceLeft =
-    Math.abs(
-      initX -
-      projectBounds.left
-    );
+px +=
+  (
+    targetX -
+    px
+  ) *
+  this.data.ease;
 
 
-  const distanceRight =
-    Math.abs(
-      projectBounds.right -
-      initX
-    );
+py +=
+  (
+    targetY -
+    py
+  ) *
+  this.data.ease;
 
 
-  const distanceTop =
-    Math.abs(
-      projectBounds.top -
-      initY
-    );
-
-
-  const distanceBottom =
-    Math.abs(
-      initY -
-      projectBounds.bottom
-    );
-
-
-  const nearestEdge =
-    Math.min(
-      distanceLeft,
-      distanceRight,
-      distanceTop,
-      distanceBottom
-    );
-
-
-  if (
-    nearestEdge ===
-    distanceLeft
-  ) {
-
-    targetX =
-      projectBounds.left;
-
-  }
-
-  else if (
-    nearestEdge ===
-    distanceRight
-  ) {
-
-    targetX =
-      projectBounds.right;
-
-  }
-
-  else if (
-    nearestEdge ===
-    distanceTop
-  ) {
-
-    targetY =
-      projectBounds.top;
-
-  }
-
-  else {
-
-    targetY =
-      projectBounds.bottom;
-
-  }
-
-}
+pz +=
+  (
+    initZ -
+    pz
+  ) *
+  this.data.ease;
 
 
 /*
