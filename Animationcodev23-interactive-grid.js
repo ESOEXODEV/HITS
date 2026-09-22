@@ -303,16 +303,23 @@ class CreateParticles {
       new THREE.Raycaster();
 
 
-    this.buttom =
-      false;
+this.buttom =
+  false;
 
 
-    /*
-     * Preserve the original typo "buttom"
-     * because the interaction logic historically
-     * used this property for mouse-down state.
-     */
+/*
+ * Currently hovered CMS project.
+ */
 
+this.activeProject =
+  null;
+
+
+/*
+ * Preserve the original typo "buttom"
+ * because the interaction logic historically
+ * used this property for mouse-down state.
+ */
 
     /*
      * ========================================================
@@ -624,21 +631,66 @@ class CreateParticles {
     );
 
 
-    document.addEventListener(
+document.addEventListener(
 
-      'touchend',
+  'touchend',
 
-      this.onTouchEnd.bind(
-        this
-      ),
+  this.onTouchEnd.bind(
+    this
+  ),
 
-      {
-        passive: true
+  {
+    passive: true
+  }
+
+);
+
+
+/*
+ * CMS project hover detection.
+ */
+
+const projectItems =
+  document.querySelectorAll(
+    '.cms-hover-item'
+  );
+
+
+projectItems.forEach(
+  (item) => {
+
+    item.addEventListener(
+      'mouseenter',
+      () => {
+
+        this.activeProject =
+          item;
+
       }
+    );
 
+
+    item.addEventListener(
+      'mouseleave',
+      () => {
+
+        if (
+          this.activeProject ===
+          item
+        ) {
+
+          this.activeProject =
+            null;
+
+        }
+
+      }
     );
 
   }
+);
+
+}
 
 
 
@@ -1539,15 +1591,144 @@ this.particles.geometry.attributes.customColor.needsUpdate =
       );
 
 
-    const time =
-      performance.now();
+const time =
+  performance.now();
 
 
-    for (
-      let i = 0;
-      i < pos.count;
-      i++
-    ) {
+/*
+ * ========================================================
+ * ACTIVE CMS PROJECT RECTANGLE
+ * ========================================================
+ */
+
+let projectBounds =
+  null;
+
+
+if (
+  this.activeProject
+) {
+
+  const projectRect =
+    this.activeProject
+      .getBoundingClientRect();
+
+
+  const canvasRect =
+    this.renderer.domElement
+      .getBoundingClientRect();
+
+
+  /*
+   * Convert browser pixel coordinates into
+   * Three.js world coordinates at z = 0.
+   */
+
+  const visibleWidth =
+    this.visibleWidthAtZDepth(
+      0,
+      this.camera
+    );
+
+
+  const visibleHeight =
+    this.visibleHeightAtZDepth(
+      0,
+      this.camera
+    );
+
+
+  const left =
+    (
+      (
+        projectRect.left -
+        canvasRect.left
+      ) /
+      canvasRect.width -
+      0.5
+    ) *
+    visibleWidth;
+
+
+  const right =
+    (
+      (
+        projectRect.right -
+        canvasRect.left
+      ) /
+      canvasRect.width -
+      0.5
+    ) *
+    visibleWidth;
+
+
+  const top =
+    (
+      0.5 -
+      (
+        projectRect.top -
+        canvasRect.top
+      ) /
+      canvasRect.height
+    ) *
+    visibleHeight;
+
+
+  const bottom =
+    (
+      0.5 -
+      (
+        projectRect.bottom -
+        canvasRect.top
+      ) /
+      canvasRect.height
+    ) *
+    visibleHeight;
+
+
+  /*
+   * Small amount of breathing room between
+   * the media and surrounding drones.
+   */
+
+  const paddingX =
+    visibleWidth *
+    0.018;
+
+
+  const paddingY =
+    visibleHeight *
+    0.025;
+
+
+  projectBounds = {
+
+    left:
+      left -
+      paddingX,
+
+    right:
+      right +
+      paddingX,
+
+    top:
+      top +
+      paddingY,
+
+    bottom:
+      bottom -
+      paddingY
+
+  };
+
+}
+
+
+for (
+  let i = 0;
+  i < pos.count;
+  i++
+) {
 
       /*
        * Current position.
@@ -1763,41 +1944,141 @@ if (
 }
 
 
-      /*
-       * ========================================================
-       * RETURN TO GRID
-       * ========================================================
-       *
-       * This runs continuously, including
-       * while particles are being disturbed.
-       *
-       * The interaction pushes them away;
-       * this easing pulls them smoothly back.
-       */
+/*
+ * ========================================================
+ * CMS PROJECT DISPLACEMENT
+ * ========================================================
+ */
+
+let targetX =
+  initX;
+
+let targetY =
+  initY;
 
 
-      px +=
-        (
-          initX -
-          px
-        ) *
-        this.data.ease;
+if (
+  projectBounds &&
+  initX >
+    projectBounds.left &&
+  initX <
+    projectBounds.right &&
+  initY <
+    projectBounds.top &&
+  initY >
+    projectBounds.bottom
+) {
+
+  /*
+   * Determine which edge of the project
+   * rectangle is closest to this drone.
+   */
+
+  const distanceLeft =
+    Math.abs(
+      initX -
+      projectBounds.left
+    );
 
 
-      py +=
-        (
-          initY -
-          py
-        ) *
-        this.data.ease;
+  const distanceRight =
+    Math.abs(
+      projectBounds.right -
+      initX
+    );
 
 
-      pz +=
-        (
-          initZ -
-          pz
-        ) *
-        this.data.ease;
+  const distanceTop =
+    Math.abs(
+      projectBounds.top -
+      initY
+    );
+
+
+  const distanceBottom =
+    Math.abs(
+      initY -
+      projectBounds.bottom
+    );
+
+
+  const nearestEdge =
+    Math.min(
+      distanceLeft,
+      distanceRight,
+      distanceTop,
+      distanceBottom
+    );
+
+
+  if (
+    nearestEdge ===
+    distanceLeft
+  ) {
+
+    targetX =
+      projectBounds.left;
+
+  }
+
+  else if (
+    nearestEdge ===
+    distanceRight
+  ) {
+
+    targetX =
+      projectBounds.right;
+
+  }
+
+  else if (
+    nearestEdge ===
+    distanceTop
+  ) {
+
+    targetY =
+      projectBounds.top;
+
+  }
+
+  else {
+
+    targetY =
+      projectBounds.bottom;
+
+  }
+
+}
+
+
+/*
+ * ========================================================
+ * RETURN / MOVE TO TARGET
+ * ========================================================
+ */
+
+px +=
+  (
+    targetX -
+    px
+  ) *
+  this.data.ease;
+
+
+py +=
+  (
+    targetY -
+    py
+  ) *
+  this.data.ease;
+
+
+pz +=
+  (
+    initZ -
+    pz
+  ) *
+  this.data.ease;
 
 
       pos.setXYZ(
