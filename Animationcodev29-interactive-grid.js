@@ -1808,22 +1808,21 @@ const initZ =
 
 /*
  * ========================================================
- * CMS DISPLACEMENT TARGET
+ * CMS VIDEO CLEARING
  * ========================================================
  *
- * Compression-wave behavior:
+ * New simplified behavior:
  *
- * 1. Drones underneath the media move only far
- *    enough to clear the nearest edge.
+ * 1. Drones deep behind the video stay in their
+ *    grid positions and fade out.
  *
- * 2. Drones immediately outside the media move
- *    outward to make room.
+ * 2. Drones just inside the video edge remain
+ *    visible and move outward slightly.
  *
- * 3. That outward movement decreases smoothly
- *    with distance from the media.
+ * 3. Drones just outside the video edge move
+ *    outward even less.
  *
- * This preserves the original grid while making
- * it appear compressed around the project.
+ * 4. Everything farther away remains untouched.
  */
 
 
@@ -1833,17 +1832,31 @@ let targetX =
 let targetY =
   initY;
 
+
+/*
+ * Used by movement brightness and cursor
+ * interaction only.
+ */
+
 let displacementStrength =
   0;
 
 
+/*
+ * Separate fade value so disappearing drones
+ * do NOT receive movement brightness.
+ */
+
+let targetAlpha =
+  1;
+
+
 if (
-  projectBounds &&
-  projectOuterBounds
+  projectBounds
 ) {
 
   /*
-   * Actual spacing of the permanent grid.
+   * Permanent grid spacing.
    */
 
   const gridSpacingX =
@@ -1863,59 +1876,64 @@ if (
 
 
   /*
-   * Inner drones should sit just outside the
-   * media rather than being reflected outward.
+   * How deep INSIDE the video a drone may be
+   * while still participating in edge movement.
    *
-   * About one-third of a grid cell gives the
-   * video breathing room without creating a
-   * detached new row or column.
+   * Anything deeper simply fades away.
    */
 
-  const innerClearanceX =
+  const innerBandX =
     gridSpacingX *
-    0.32;
+    0.55;
 
 
-  const innerClearanceY =
+  const innerBandY =
     gridSpacingY *
-    0.32;
+    0.55;
 
 
   /*
-   * Distance over which the surrounding grid
-   * participates in the compression wave.
-   *
-   * Roughly three grid layers.
+   * How far OUTSIDE the video the gentle
+   * secondary influence extends.
    */
 
-  const influenceX =
+  const outerBandX =
     gridSpacingX *
-    3.25;
+    1.35;
 
 
-  const influenceY =
+  const outerBandY =
     gridSpacingY *
-    3.25;
+    1.35;
 
 
   /*
-   * Maximum movement of the first OUTER layer.
+   * Maximum physical movement.
    *
-   * This is intentionally smaller than one
-   * complete grid cell.
+   * These are intentionally small.
    */
 
-  const maxOuterPushX =
+  const innerPushX =
     gridSpacingX *
-    0.62;
+    0.22;
 
 
-  const maxOuterPushY =
+  const innerPushY =
     gridSpacingY *
-    0.62;
+    0.22;
 
 
-  const insideInner =
+  const outerPushX =
+    gridSpacingX *
+    0.10;
+
+
+  const outerPushY =
+    gridSpacingY *
+    0.10;
+
+
+  const insideVideo =
     initX >
       projectBounds.left &&
     initX <
@@ -1927,18 +1945,12 @@ if (
 
 
   if (
-    insideInner
+    insideVideo
   ) {
 
     /*
-     * ====================================================
-     * INNER DRONES
-     * ====================================================
-     *
-     * Move only to the nearest edge plus a small
-     * fixed clearance.
+     * Distance from this drone to each video edge.
      */
-
 
     const distanceLeft =
       initX -
@@ -1960,57 +1972,130 @@ if (
       projectBounds.bottom;
 
 
-    const nearestEdge =
+    const nearestHorizontal =
       Math.min(
         distanceLeft,
-        distanceRight,
+        distanceRight
+      );
+
+
+    const nearestVertical =
+      Math.min(
         distanceTop,
         distanceBottom
       );
 
 
-    displacementStrength =
-      1;
+    /*
+     * ====================================================
+     * INNER EDGE
+     * ====================================================
+     *
+     * Only drones already very close to an edge
+     * physically move.
+     */
+
+
+    const nearVerticalEdge =
+      nearestHorizontal <=
+      innerBandX;
+
+
+    const nearHorizontalEdge =
+      nearestVertical <=
+      innerBandY;
 
 
     if (
-      nearestEdge ===
-      distanceLeft
+      nearVerticalEdge ||
+      nearHorizontalEdge
     ) {
 
-      targetX =
-        projectBounds.left -
-        innerClearanceX;
+      /*
+       * Use whichever nearby edge requires the
+       * least movement.
+       */
+
+      const horizontalRatio =
+        nearestHorizontal /
+        innerBandX;
+
+
+      const verticalRatio =
+        nearestVertical /
+        innerBandY;
+
+
+      if (
+        horizontalRatio <
+        verticalRatio
+      ) {
+
+        if (
+          distanceLeft <
+          distanceRight
+        ) {
+
+          targetX =
+            initX -
+            innerPushX;
+
+        }
+
+        else {
+
+          targetX =
+            initX +
+            innerPushX;
+
+        }
+
+      }
+
+      else {
+
+        if (
+          distanceBottom <
+          distanceTop
+        ) {
+
+          targetY =
+            initY -
+            innerPushY;
+
+        }
+
+        else {
+
+          targetY =
+            initY +
+            innerPushY;
+
+        }
+
+      }
+
+
+      displacementStrength =
+        1;
 
     }
 
-    else if (
-      nearestEdge ===
-      distanceRight
-    ) {
 
-      targetX =
-        projectBounds.right +
-        innerClearanceX;
+    /*
+     * ====================================================
+     * CENTER
+     * ====================================================
+     *
+     * These drones don't move at all.
+     * They simply disappear behind the video.
+     */
 
-    }
-
-    else if (
-      nearestEdge ===
-      distanceTop
-    ) {
-
-      targetY =
-        projectBounds.top +
-        innerClearanceY;
-
-    }
 
     else {
 
-      targetY =
-        projectBounds.bottom -
-        innerClearanceY;
+      targetAlpha =
+        0;
 
     }
 
@@ -2021,11 +2106,12 @@ if (
 
     /*
      * ====================================================
-     * OUTER COMPRESSION WAVE
+     * OUTER EDGE
      * ====================================================
      *
-     * Determine how far this drone sits outside
-     * each edge of the project.
+     * Drones immediately outside the video move
+     * only a tiny amount. Influence fades to zero
+     * across approximately one grid layer.
      */
 
 
@@ -2043,25 +2129,17 @@ if (
         projectBounds.right;
 
 
-    let distanceFromEdge =
-      Infinity;
-
-    let directionX =
-      0;
-
-    let directionY =
-      0;
-
-    let influenceDistance =
-      1;
-
-    let maximumPush =
+    let outerInfluence =
       0;
 
 
-    /*
-     * Left side.
-     */
+    let outerDirectionX =
+      0;
+
+
+    let outerDirectionY =
+      0;
+
 
     if (
       withinVerticalSpan &&
@@ -2076,34 +2154,24 @@ if (
 
       if (
         distance <
-        distanceFromEdge
+        outerBandX
       ) {
 
-        distanceFromEdge =
-          distance;
+        outerInfluence =
+          1 -
+          distance /
+          outerBandX;
 
-        directionX =
+
+        outerDirectionX =
           -1;
-
-        directionY =
-          0;
-
-        influenceDistance =
-          influenceX;
-
-        maximumPush =
-          maxOuterPushX;
 
       }
 
     }
 
 
-    /*
-     * Right side.
-     */
-
-    if (
+    else if (
       withinVerticalSpan &&
       initX >
         projectBounds.right
@@ -2116,34 +2184,24 @@ if (
 
       if (
         distance <
-        distanceFromEdge
+        outerBandX
       ) {
 
-        distanceFromEdge =
-          distance;
+        outerInfluence =
+          1 -
+          distance /
+          outerBandX;
 
-        directionX =
+
+        outerDirectionX =
           1;
-
-        directionY =
-          0;
-
-        influenceDistance =
-          influenceX;
-
-        maximumPush =
-          maxOuterPushX;
 
       }
 
     }
 
 
-    /*
-     * Top side.
-     */
-
-    if (
+    else if (
       withinHorizontalSpan &&
       initY >
         projectBounds.top
@@ -2156,34 +2214,24 @@ if (
 
       if (
         distance <
-        distanceFromEdge
+        outerBandY
       ) {
 
-        distanceFromEdge =
-          distance;
+        outerInfluence =
+          1 -
+          distance /
+          outerBandY;
 
-        directionX =
-          0;
 
-        directionY =
+        outerDirectionY =
           1;
-
-        influenceDistance =
-          influenceY;
-
-        maximumPush =
-          maxOuterPushY;
 
       }
 
     }
 
 
-    /*
-     * Bottom side.
-     */
-
-    if (
+    else if (
       withinHorizontalSpan &&
       initY <
         projectBounds.bottom
@@ -2196,23 +2244,17 @@ if (
 
       if (
         distance <
-        distanceFromEdge
+        outerBandY
       ) {
 
-        distanceFromEdge =
-          distance;
+        outerInfluence =
+          1 -
+          distance /
+          outerBandY;
 
-        directionX =
-          0;
 
-        directionY =
+        outerDirectionY =
           -1;
-
-        influenceDistance =
-          influenceY;
-
-        maximumPush =
-          maxOuterPushY;
 
       }
 
@@ -2220,69 +2262,43 @@ if (
 
 
     if (
-      distanceFromEdge <
-      influenceDistance
+      outerInfluence >
+      0
     ) {
 
       /*
-       * 1 at the video edge → 0 at the outside
-       * of the influence field.
+       * Smooth the influence so movement becomes
+       * progressively subtler away from the video.
        */
 
-      const normalizedDistance =
-        Math.max(
-          0,
-          Math.min(
-            1,
-            distanceFromEdge /
-              influenceDistance
-          )
-        );
-
-
-      /*
-       * Curved falloff.
-       *
-       * Squaring the remaining influence gives
-       * us the compressed / logarithmic-looking
-       * spacing:
-       *
-       * strong near the video,
-       * moderate one layer away,
-       * subtle farther out.
-       */
-
-      const influence =
-        Math.pow(
-          1 -
-          normalizedDistance,
-          2
-        );
-
-
-      displacementStrength =
-        influence;
+      const smoothInfluence =
+        outerInfluence *
+        outerInfluence;
 
 
       targetX =
         initX +
-        directionX *
-        maximumPush *
-        influence;
+        outerDirectionX *
+        outerPushX *
+        smoothInfluence;
 
 
       targetY =
         initY +
-        directionY *
-        maximumPush *
-        influence;
+        outerDirectionY *
+        outerPushY *
+        smoothInfluence;
+
+
+      displacementStrength =
+        smoothInfluence *
+        0.45;
 
     }
 
   }
 
 }
-
 
 /*
  * ========================================================
@@ -2379,13 +2395,40 @@ colors.setXYZ(
 );
 
 
-      /*
-       * Keep every particle visible.
-       */
+/*
+ * ========================================================
+ * CMS ALPHA
+ * ========================================================
+ *
+ * Smoothly fade center drones out while the
+ * project is active and smoothly restore them
+ * when hover ends.
+ *
+ * Their flicker continues running underneath
+ * the fade, so it never restarts or synchronizes.
+ */
 
 
-      alpha.array[i] =
-        1;
+alpha.array[i] +=
+  (
+    targetAlpha -
+    alpha.array[i]
+  ) *
+  0.06;
+
+
+if (
+  Math.abs(
+    targetAlpha -
+    alpha.array[i]
+  ) <
+  0.001
+) {
+
+  alpha.array[i] =
+    targetAlpha;
+
+}
 
 
       /*
