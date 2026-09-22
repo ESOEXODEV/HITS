@@ -2371,7 +2371,7 @@ const brightness =
 const movementBrightness =
   1 +
   displacementStrength *
-  0.12;
+  0.25;
 
 
 const finalBrightness =
