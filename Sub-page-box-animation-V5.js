@@ -103,7 +103,7 @@ class CreateParticles {
 
       textColor: 0xffffff,
 
-      amount: 120,
+      amount: 60,
 
       particleSize: 2.5,
 
