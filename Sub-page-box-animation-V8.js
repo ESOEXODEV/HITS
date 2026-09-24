@@ -69,7 +69,10 @@ void main() {
 `;
 
 window.AnimateTexts = [
-  'HEADS IN THE SKY'
+  'MAKE A MOMENT',
+  'BEYOND BILLBOARDS',
+  '300 DRONES',
+  'JUST LOOK UP'
 ];
 
 window.AnimateTextIndex = 0;
