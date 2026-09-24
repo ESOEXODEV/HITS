@@ -227,6 +227,8 @@ this.introComplete = true;
 
 this.createText();
 
+this.startWordCycle();
+
   }
 
 
