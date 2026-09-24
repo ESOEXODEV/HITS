@@ -107,7 +107,7 @@ class CreateParticles {
 
       particleSize: 2.5,
 
-      textSize: 16,
+      textSize: 20,
 
       area: 50,
 
