@@ -2069,22 +2069,33 @@ size.needsUpdate =
 
   onMouseDown(event) {
 
-    this.mouse.x =
-      (
-        event.clientX /
-        window.innerWidth
-      ) *
-      2 -
-      1;
+const rect =
+  this.renderer.domElement
+    .getBoundingClientRect();
 
 
-    this.mouse.y =
-      -(
-        event.clientY /
-        window.innerHeight
-      ) *
-      2 +
-      1;
+this.mouse.x =
+  (
+    (
+      event.clientX -
+      rect.left
+    ) /
+    rect.width
+  ) *
+  2 -
+  1;
+
+
+this.mouse.y =
+  -(
+    (
+      event.clientY -
+      rect.top
+    ) /
+    rect.height
+  ) *
+  2 +
+  1;
 
 
     const vector =
@@ -2148,23 +2159,33 @@ size.needsUpdate =
 
   onMouseMove(event) {
 
-    this.mouse.x =
-      (
-        event.clientX /
-        window.innerWidth
-      ) *
-      2 -
-      1;
+const rect =
+  this.renderer.domElement
+    .getBoundingClientRect();
 
 
-    this.mouse.y =
-      -(
-        event.clientY /
-        window.innerHeight
-      ) *
-      2 +
-      1;
+this.mouse.x =
+  (
+    (
+      event.clientX -
+      rect.left
+    ) /
+    rect.width
+  ) *
+  2 -
+  1;
 
+
+this.mouse.y =
+  -(
+    (
+      event.clientY -
+      rect.top
+    ) /
+    rect.height
+  ) *
+  2 +
+  1;
   }
 
 
