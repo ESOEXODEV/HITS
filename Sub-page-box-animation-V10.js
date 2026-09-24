@@ -69,8 +69,8 @@ void main() {
 `;
 
 window.AnimateTexts = [
-  'MAKE A MOMENT',
-  'BEYOND BILLBOARDS',
+  'MAKE A SHOW',
+  'STAND OUT',
   '300 DRONES',
   'JUST LOOK UP'
 ];
@@ -116,7 +116,7 @@ class CreateParticles {
 
       ease: .05,
 
-      wordDuration: 9000,
+      wordDuration: 10000,
 
       morphDuration: 2475,
 
