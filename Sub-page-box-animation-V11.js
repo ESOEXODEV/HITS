@@ -2547,13 +2547,33 @@ this.mouse.y =
      * the morph animation takes control.
      */
 
-    if (this.isMorphing) {
+if (this.isMorphing) {
 
-      this.updateMorph();
+  this.updateMorph();
 
-      return;
+  return;
 
-    }
+}
+
+
+/*
+ * Subtle 3D floating rotation.
+ */
+
+const rotationTime =
+  performance.now() * 0.00025;
+
+
+this.particles.rotation.y =
+  Math.sin(rotationTime) *
+  THREE.MathUtils.degToRad(4);
+
+
+this.particles.rotation.x =
+  Math.sin(
+    rotationTime * 0.7
+  ) *
+  THREE.MathUtils.degToRad(1.5);
 
 
 /*
