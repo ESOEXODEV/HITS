@@ -69,9 +69,6 @@ void main() {
 `;
 
 window.AnimateTexts = [
-  'MAKE A SHOW',
-  'STAND OUT',
-  '300 DRONES',
   'JUST LOOK UP'
 ];
 
@@ -226,8 +223,6 @@ this.introComplete = true;
 
 
 this.createText();
-
-this.startWordCycle();
 
   }
 
