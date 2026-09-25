@@ -3033,28 +3033,10 @@ pos.setXYZ(
 
 let vectorPoints = [
 
-  /*
-   * Rear drone layer.
-   * Push deeper into 3D space.
-   */
-
   ...baseVectorPoints.map(
-    point => {
-
-      const clone =
-        point.clone();
-
-      clone.z -= 6;
-
-      return clone;
-
-    }
+    point =>
+      point.clone()
   ),
-
-
-  /*
-   * Front drone layer.
-   */
 
   ...baseVectorPoints.map(
     point =>
@@ -3062,7 +3044,6 @@ let vectorPoints = [
   )
 
 ];
-
 
     vectorPoints.forEach(
       (point, i) => {
