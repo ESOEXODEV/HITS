@@ -2556,19 +2556,19 @@ if (this.isMorphing) {
  */
 
 const rotationTime =
-  performance.now() * 0.00025;
+  performance.now() * 0.00035;
 
 
 this.particles.rotation.y =
   Math.sin(rotationTime) *
-  THREE.MathUtils.degToRad(4);
+  THREE.MathUtils.degToRad(6);
 
 
 this.particles.rotation.x =
   Math.sin(
     rotationTime * 0.7
   ) *
-  THREE.MathUtils.degToRad(1.5);
+  THREE.MathUtils.degToRad(2.5);
 
 
 /*
