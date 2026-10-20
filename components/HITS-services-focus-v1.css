@@ -1,0 +1,28 @@
+/* HITS Services: compact sections with scroll-based emphasis. */
+:is(#tentpole-moments, #skyad, #hits-experiences, #boots-on-the-ground, #projection-stunts) {
+  min-height: 70vh;
+  height: auto;
+  max-height: none;
+}
+:is(#tentpole-moments, #skyad, #hits-experiences, #boots-on-the-ground, #projection-stunts) > [class~="_100vh-min"] {
+  min-height: inherit;
+  height: auto;
+  max-height: none;
+}
+@supports (min-height: 70svh) {
+  :is(#tentpole-moments, #skyad, #hits-experiences, #boots-on-the-ground, #projection-stunts) { min-height: 70svh; }
+}
+html.hits-service-focus :is(#tentpole-moments, #skyad, #hits-experiences, #boots-on-the-ground, #projection-stunts) {
+  opacity: 0.25;
+  transition: opacity 400ms ease-out;
+}
+html.hits-service-focus :is(#tentpole-moments, #skyad, #hits-experiences, #boots-on-the-ground, #projection-stunts).hits-service-current,
+html.hits-service-focus :is(#tentpole-moments, #skyad, #hits-experiences, #boots-on-the-ground, #projection-stunts):focus-within {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.hits-service-focus :is(#tentpole-moments, #skyad, #hits-experiences, #boots-on-the-ground, #projection-stunts) { transition: none; }
+}
+@media print {
+  html.hits-service-focus :is(#tentpole-moments, #skyad, #hits-experiences, #boots-on-the-ground, #projection-stunts) { opacity: 1; }
+}
