@@ -1,0 +1,31 @@
+/* Services anchor navigation: same gold sweep as the large titles. */
+.row-services.anchors a.service-block {
+  /* Reserve the existing border space so button dimensions do not change. */
+  border-color: transparent;
+  border-radius: 0;
+  background-color: transparent;
+  background-image: linear-gradient(
+    var(--_brand-colors---orange-text, #f0c36e),
+    var(--_brand-colors---orange-text, #f0c36e)
+  );
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  color: var(--white, #fff);
+  transition: background-size 400ms ease, color 400ms ease;
+}
+.row-services.anchors a.service-block .headingallpro.services { color: inherit; }
+@media (hover: hover) {
+  .row-services.anchors a.service-block:hover {
+    background-size: 100% 100%;
+    color: #000;
+  }
+}
+.row-services.anchors a.service-block:focus-visible,
+.row-services.anchors a.service-block.hits-service-nav-current {
+  background-size: 100% 100%;
+  color: #000;
+}
+@media (prefers-reduced-motion: reduce) {
+  .row-services.anchors a.service-block { transition: none; }
+}
