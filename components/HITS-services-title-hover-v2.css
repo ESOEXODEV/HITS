@@ -1,0 +1,38 @@
+/* Shared, content-width title and subtitle hover fill. */
+.services-anchor:has(> .services-big) {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
+  align-self: center;
+  margin-inline: auto;
+  background-image: linear-gradient(
+    var(--_brand-colors---orange-text, #f0c36e),
+    var(--_brand-colors---orange-text, #f0c36e)
+  );
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  transition: background-size 400ms ease;
+}
+.services-anchor > .services-big,
+.services-anchor > .services-subtitle {
+  width: auto;
+  max-width: 100%;
+  background-image: none;
+  transition: color 400ms ease;
+}
+@media (hover: hover) {
+  .services-anchor:has(> .services-big):hover { background-size: 100% 100%; }
+  .services-anchor:hover > .services-big,
+  .services-anchor:hover > .services-subtitle { color: #000; }
+}
+.services-anchor:has(> .services-big):focus-visible { background-size: 100% 100%; }
+.services-anchor:focus-visible > .services-big,
+.services-anchor:focus-visible > .services-subtitle { color: #000; }
+@media (prefers-reduced-motion: reduce) {
+  .services-anchor:has(> .services-big),
+  .services-anchor > .services-big,
+  .services-anchor > .services-subtitle { transition: none; }
+}
