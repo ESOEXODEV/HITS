@@ -1,0 +1,25 @@
+/* Services title hover: Orange Text brand variable, full heading fill. */
+.services-big {
+  background-image: linear-gradient(
+    var(--_brand-colors---orange-text, #f0c36e),
+    var(--_brand-colors---orange-text, #f0c36e)
+  );
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  transition: background-size 400ms ease, color 400ms ease;
+}
+@media (hover: hover) {
+  .services-big:hover {
+    background-size: 100% 100%;
+    color: #000;
+  }
+}
+.services-big:focus-visible,
+a:focus-visible .services-big {
+  background-size: 100% 100%;
+  color: #000;
+}
+@media (prefers-reduced-motion: reduce) {
+  .services-big { transition: none; }
+}
