@@ -1,0 +1,58 @@
+/* About: Kevin Prince founder spotlight. */
+.hits-founder-spotlight {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 4vw, 64px);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding-block: clamp(48px, 7vw, 88px);
+  margin-block: 16px 32px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+.hits-founder-portrait {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--_brand-colors---teal-text, #56f3c1) 40%, transparent);
+  box-shadow: 0 0 28px 3px color-mix(in srgb, var(--_brand-colors---teal-text, #56f3c1) 12%, transparent);
+}
+.hits-founder-portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.hits-founder-copy { min-width: 0; color: var(--off-white, #f4f2ee); }
+.hits-founder-copy .hits-founder-eyebrow {
+  margin: 0 0 14px;
+  color: var(--_brand-colors---orange-text, #f0c36e);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+.hits-founder-copy h2 {
+  margin: 0 0 8px;
+  color: var(--white, #fff);
+  font-size: clamp(32px, 4vw, 56px);
+  font-weight: 700;
+  line-height: 1.1;
+}
+.hits-founder-copy .hits-founder-role {
+  margin: 0 0 26px;
+  color: var(--_brand-colors---teal-text, #56f3c1);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.hits-founder-copy > p:not(.hits-founder-eyebrow):not(.hits-founder-role) {
+  margin: 0 0 18px;
+  font-size: 16px;
+  line-height: 1.65;
+}
+.hits-founder-copy > p:last-child { margin-bottom: 0; }
+@media (max-width: 991px) {
+  .hits-founder-spotlight { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .hits-founder-copy { max-width: 760px; }
+}
