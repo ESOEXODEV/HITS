@@ -1,0 +1,56 @@
+/* Work card hover: sequential 650ms push-in, then icon reveal. */
+[data-hits-project-drones] > [data-hits-project-icon-glow] {
+  display: block !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.82);
+  transform-origin: center;
+  height: 100px;
+  width: auto;
+  opacity: 0 !important;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px var(--hits-project-glow, #f0c36e))
+          drop-shadow(0 0 18px var(--hits-project-glow, #f0c36e)) !important;
+  /* Hover-off: hide the icon before the drones return. */
+  transition: opacity 250ms ease-out, transform 250ms ease-out;
+}
+[data-hits-project-drones] > .w-embed {
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: center;
+  transition: opacity 0ms linear 250ms,
+              transform 400ms cubic-bezier(0.22, 1, 0.36, 1) 250ms;
+}
+@media (hover: hover) {
+  .project-item:hover [data-hits-project-drones] > [data-hits-project-icon-glow] {
+    opacity: 1 !important;
+    transform: translate(-50%, -50%) scale(1);
+    transition-delay: 400ms;
+  }
+  .project-item:hover [data-hits-project-drones] > .w-embed {
+    opacity: 0;
+    transform: scale(0.02);
+    transition: opacity 0ms linear 400ms,
+                transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+.project-item:focus-within [data-hits-project-drones] > [data-hits-project-icon-glow] {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) scale(1);
+  transition-delay: 400ms;
+}
+.project-item:focus-within [data-hits-project-drones] > .w-embed {
+  opacity: 0;
+  transform: scale(0.02);
+  transition: opacity 0ms linear 400ms,
+              transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-hits-project-drones] > [data-hits-project-icon-glow],
+  [data-hits-project-drones] > .w-embed { transition: none !important; }
+  [data-hits-project-drones] > [data-hits-project-icon-glow] {
+    transform: translate(-50%, -50%) scale(1) !important;
+  }
+  [data-hits-project-drones] > .w-embed { transform: none !important; }
+}
