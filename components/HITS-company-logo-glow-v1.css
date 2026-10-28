@@ -1,0 +1,25 @@
+/* In Good Company: match the Work icons' hover glow. */
+.brands-wrapper img.brands {
+  --hits-company-glow: var(--_brand-colors---orange-text, #f0c36e);
+  --hits-company-filter: brightness(1);
+  filter: var(--hits-company-filter) drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent);
+  transition: filter 450ms ease-out;
+}
+.brands-wrapper img.brands.height.white {
+  --hits-company-filter: contrast(200%) brightness(0%) grayscale(100%) invert(100%);
+}
+@media (hover: hover) {
+  .brands-wrapper img.brands:hover {
+    filter: var(--hits-company-filter)
+      drop-shadow(0 0 8px var(--hits-company-glow))
+      drop-shadow(0 0 18px var(--hits-company-glow));
+  }
+}
+.brands-wrapper a:focus-visible img.brands {
+  filter: var(--hits-company-filter)
+    drop-shadow(0 0 8px var(--hits-company-glow))
+    drop-shadow(0 0 18px var(--hits-company-glow));
+}
+@media (prefers-reduced-motion: reduce) {
+  .brands-wrapper img.brands { transition: none; }
+}
