@@ -1,0 +1,29 @@
+/* Work card hover: reveal the existing glowing project icon. */
+[data-hits-project-drones] > [data-hits-project-icon-glow] {
+  display: block !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 100px;
+  width: auto;
+  opacity: 0 !important;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px var(--hits-project-glow, #f0c36e))
+          drop-shadow(0 0 18px var(--hits-project-glow, #f0c36e)) !important;
+  transition: opacity 400ms ease;
+}
+[data-hits-project-drones] > .w-embed {
+  opacity: 1;
+  transition: opacity 400ms ease;
+}
+@media (hover: hover) {
+  .project-item:hover [data-hits-project-drones] > [data-hits-project-icon-glow] { opacity: 1 !important; }
+  .project-item:hover [data-hits-project-drones] > .w-embed { opacity: 0; }
+}
+.project-item:focus-within [data-hits-project-drones] > [data-hits-project-icon-glow] { opacity: 1 !important; }
+.project-item:focus-within [data-hits-project-drones] > .w-embed { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  [data-hits-project-drones] > [data-hits-project-icon-glow],
+  [data-hits-project-drones] > .w-embed { transition: none; }
+}
