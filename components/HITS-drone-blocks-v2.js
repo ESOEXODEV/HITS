@@ -76,6 +76,7 @@
       this.rows = Math.round(number(h.getAttribute('data-drone-rows'), 4, 1, 24));
       this.size = number(h.getAttribute('data-drone-size'), 4.5, 1, 24);
       this.padding = number(h.getAttribute('data-drone-padding'), 16, 0, 120);
+      this.flickerSpeed = number(h.getAttribute('data-drone-flicker-speed'), 1, 0, 4);
       this.colorAt = -Infinity;
       this.dirty = true;
       this.resize();
@@ -125,7 +126,8 @@
         const random = Math.sin(i * 12.9898) * 43758.5453;
         const base = 0.62 + (random - Math.floor(random)) * 0.16;
         const flicker = motion.matches ? 0.90 : 0.90 +
-          Math.sin(time * 0.006 + i * 1.73) * 0.06 + Math.sin(time * 0.014 + i * 4.17) * 0.04;
+          Math.sin(time * 0.006 * this.flickerSpeed + i * 1.73) * 0.06 +
+          Math.sin(time * 0.014 * this.flickerSpeed + i * 4.17) * 0.04;
         this.ctx.globalAlpha = base * flicker;
         this.ctx.drawImage(this.sprite, point.x - diameter / 2, point.y - diameter / 2, diameter, diameter);
       });
@@ -163,7 +165,7 @@
     refresh();
     observer.observe(document.body, { childList: true, subtree: true, attributes: true,
       attributeFilter: ['data-drone-grid', 'data-drone-columns', 'data-drone-rows', 'data-drone-size',
-        'data-drone-color', 'data-drone-padding'] });
+        'data-drone-color', 'data-drone-padding', 'data-drone-flicker-speed'] });
   }
   document.addEventListener('visibilitychange', wake);
   window.addEventListener('resize', () => { instances.forEach(item => item.resize()); wake(); }, { passive: true });
