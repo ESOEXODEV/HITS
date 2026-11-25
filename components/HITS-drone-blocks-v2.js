@@ -155,11 +155,15 @@
   function scheduleRefresh() {
     if (!scanFrame) scanFrame = requestAnimationFrame(() => { scanFrame = 0; refresh(); });
   }
+  function containsDroneTarget(node) {
+    if (!node || node.nodeType !== 1 || node.hasAttribute('data-hits-drone-canvas')) return false;
+    return node.matches(selector) || Boolean(node.querySelector(selector));
+  }
   const observer = new MutationObserver(records => {
-    // Ignore our own canvas insertion/removal to avoid refresh loops.
+    // Refresh only when drone hosts or their configuration change.
     if (records.some(record => record.type === 'attributes' ||
-      [...record.addedNodes, ...record.removedNodes].some(node => node.nodeType === 1 &&
-        !node.hasAttribute('data-hits-drone-canvas')))) scheduleRefresh();
+      record.type === 'childList' &&
+      [...record.addedNodes, ...record.removedNodes].some(containsDroneTarget))) scheduleRefresh();
   });
   function start() {
     refresh();
